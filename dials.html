@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dial's Algorithm Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .link {
+            stroke: #999;
+            stroke-width: 2px;
+        }
+        .node circle {
+            fill: #5b6ee1;
+            stroke: #333;
+            stroke-width: 1.5px;
+        }
+        .node text {
+            fill: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .edge-label {
+            font-size: 12px;
+            fill: #333;
+            pointer-events: none;
+        }
+        .path {
+            font-size: 16px;
+            color: #333;
+        }
+        .distance {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dial's Algorithm Results</h1>
+    
+    <!-- Graph Visualization -->
+    <svg width="800" height="600"></svg>
+
+    <!-- Display Distances -->
+    <div class="graph-output">
+        <h2>Distances</h2>
+        <div id="distances" class="distances">
+            <!-- Distances will be displayed here -->
+        </div>
+    </div>
+
+    <!-- Display Paths -->
+    <div class="graph-output">
+        <h2>Paths</h2>
+        <div id="paths" class="paths">
+            <!-- Paths will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // The graph data you provided
+        const graphData = {
+            "vertices": ["a", "b", "c", "d", "e"],
+            "distances": [17, 37, 42, 19, 0],
+            "paths": [
+                "e -> a",
+                "e -> a -> b",
+                "e -> d -> c",
+                "e -> d",
+                "e"
+            ]
+        };
+
+        // Create SVG container and set width/height
+        const svg = d3.select("svg"),
+            width = +svg.attr("width"),
+            height = +svg.attr("height");
+
+        // Force simulation for node and edge movement
+        const simulation = d3.forceSimulation()
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        // Create node positions randomly
+        const nodes = graphData.vertices.map((vertex, id) => ({
+            id,
+            label: vertex,
+            x: Math.random() * width,
+            y: Math.random() * height
+        }));
+
+        // Draw nodes
+        const node = svg.selectAll(".node")
+            .data(nodes)
+            .enter().append("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        node.append("circle")
+            .attr("r", 20);
+
+        node.append("text")
+            .attr("dy", 5)
+            .text(d => d.label);
+
+        // Update positions on tick
+        simulation.nodes(nodes).on("tick", () => {
+            node
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
+        // Handle drag events
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        // Display Distances
+        const distancesDiv = document.getElementById('distances');
+        distancesDiv.innerHTML = '';
+        graphData.distances.forEach((distance, index) => {
+            const vertex = graphData.vertices[index];
+            const distanceDiv = document.createElement('div');
+            distanceDiv.classList.add('distance');
+            distanceDiv.innerHTML = `<span>${vertex}:</span> ${distance}`;
+            distancesDiv.appendChild(distanceDiv);
+        });
+
+        // Display Paths
+        const pathsDiv = document.getElementById('paths');
+        pathsDiv.innerHTML = '';
+        graphData.paths.forEach(path => {
+            const pathDiv = document.createElement('div');
+            pathDiv.classList.add('path');
+            pathDiv.textContent = path;
+            pathsDiv.appendChild(pathDiv);
+        });
+    </script>
+</body>
+</html>

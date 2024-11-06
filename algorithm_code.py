@@ -12,6 +12,7 @@ import webbrowser
 import subprocess
 import time
 import atexit
+import math
 
 def start_http_server():
     try:
@@ -1190,6 +1191,7 @@ class DES:
     def des_menu(self):
         clear_screen()
         print("\n\n| ----- DES ----- |\n\n")
+        print("| ---- USER INPUT FOR KEYS ---- |\n\n")
         p10 = self.valid_input("P10", 10, 1)
         p8 = self.valid_input("P8", 8, 1)
         p4 = self.valid_input("P4", 4, 1)
@@ -1258,10 +1260,9 @@ class DES:
                 IP_Permutate = self.IP_EP_STEP(hex_holder, IP, EP, p4, K1)
                 XorFirstRound.append(IP_Permutate)
                 print(f"\n------> Letter being Solved {PT[i]} <------\n")
-
             print("\n\n| ----- Round 1 ----- |")
-            print("\n\n| ----- Round 2 ----- |\n\n")
 
+            print("\n\n| ----- Round 2 ----- |\n\n")
             for i in range(len(hex_to_binaries)):
                 print(f"------> Letter being Solved {PT[i]} <------")
                 IP_Permutate = self.IP_EP_STEP(XorFirstRound[i], IP, EP, p4, K2)
@@ -1572,7 +1573,6 @@ class Graph:
         self.vertex_labels = []  # List to keep track of original labels for vertices
 
     def add_edge(self, u, v, w):
-        # Ensure the vertices are in the mapping
         if u not in self.vertex_map:
             idx = len(self.vertex_map)
             self.vertex_map[u] = idx
@@ -1603,6 +1603,8 @@ class Graph:
             json.dump(data, f)
         time.sleep(1)  
         open_browser()
+        pause_for_output()
+
     
 class Kruskal(Graph):
     def __init__(self, vertices):
@@ -1612,8 +1614,7 @@ class Kruskal(Graph):
         self.initialize_kruskal()
 
     def initialize_kruskal(self):
-        # Initialize parent and rank based on the number of vertices
-        self.parent = list(range(len(self.vertex_map)))  # Parent list initialized with the number of vertices
+        self.parent = list(range(len(self.vertex_map)))  # Parent list initialized
         self.rank = [0] * len(self.vertex_map)  # Rank list initialized for each vertex
 
     def find(self, i):
@@ -1631,7 +1632,6 @@ class Kruskal(Graph):
         else:
             self.parent[root_y] = root_x
             self.rank[root_x] += 1
-        
 
     def run(self):
         self.graph = sorted(self.graph, key=lambda item: item[2])
@@ -1644,7 +1644,6 @@ class Kruskal(Graph):
                 mst.append([u, v, w])
                 self.union(x, y)
         self.display_mst(mst)
-        
 
     def display_mst(self, mst):
         print("Kruskal's MST:")
@@ -1652,8 +1651,7 @@ class Kruskal(Graph):
             print(f"{self.reverse_map[u]} -- {self.reverse_map[v]} == {w}")
         print()
         self.cost(mst)
-        pause_for_output()
-        self.save_graph_data(mst)  # Save graph and MST data
+        self.save_graph_data(mst)
 
     def cost(self, mst):
         minimum_cost = sum([w for u, v, w in mst])
@@ -1662,83 +1660,291 @@ class Kruskal(Graph):
             print(f"{self.reverse_map[u]} -- {self.reverse_map[v]} == {weight}")
         print(f"Minimum Spanning Tree Cost: {minimum_cost}")
 
-    
 
-class Prim(Graph):
+class Prims(Graph):
     def __init__(self, vertices):
         super().__init__(vertices)
+    
+    def run(self, start_vertex):
+        # Convert the starting vertex to its integer index
+        if start_vertex not in self.vertex_map:
+            print(f"Start vertex {start_vertex} not in graph.")
+            return
+
+        start_idx = self.vertex_map[start_vertex]
+        
+        # Initialize data structures
+        mst_edges = []           # List to store MST edges
+        visited = [False] * self.V
+        min_heap = [(0, start_idx, start_idx)]  # Heap stores tuples of (weight, from_vertex, to_vertex)
+
+        total_weight = 0
+        
+        print(f"Starting Prim's algorithm from vertex: {start_vertex}")
+        
+        while min_heap:
+            weight, u, v = heapq.heappop(min_heap)
+
+            # If we've already visited this vertex, skip
+            if visited[v]:
+                continue
+
+            # Mark the vertex as visited and add the edge to MST
+            visited[v] = True
+            if u != v:  # Skip the starting vertex to itself edge
+                mst_edges.append((self.reverse_map[u], self.reverse_map[v], weight))
+                total_weight += weight
+                print(f"Selected edge {self.reverse_map[u]} -- {self.reverse_map[v]} == {weight}")
+
+            for edge in self.graph:
+                src, dest, edge_weight = edge
+                if src == v and not visited[dest]:
+                    heapq.heappush(min_heap, (edge_weight, v, dest))
+                    print(f"Considering edge {self.reverse_map[v]} -- {self.reverse_map[dest]} == {edge_weight}")
+                elif dest == v and not visited[src]:
+                    heapq.heappush(min_heap, (edge_weight, v, src))
+                    print(f"Considering edge {self.reverse_map[v]} -- {self.reverse_map[src]} == {edge_weight}")
+
+        print("\nMinimum Spanning Tree (MST) constructed by Prim's Algorithm:")
+        for u, v, weight in mst_edges:
+            print(f"{u} -- {v} == {weight}")
+        print(f"Total weight of MST: {total_weight}")
+
+        self.save_graph_data(mst_edges)
+
+class Boruvka(Graph):
+    def __init__(self, vertices):
+        super().__init__(vertices)
+    
+    def run(self):
+        print("Starting Borůvka's algorithm")
+
+        num_components = self.V
+        cheapest = [-1] * self.V 
+        MST_edges = []
+        total_cost = 0
+        component = list(range(self.V))  
+
+        while num_components > 1:
+           
+            cheapest = [-1] * self.V
+            for u, v, weight in self.graph:
+                set_u = component[u]
+                set_v = component[v]
+
+                if set_u != set_v: 
+                    if cheapest[set_u] == -1 or self.graph[cheapest[set_u][0]][2] > weight:
+                        cheapest[set_u] = (u, v, weight)
+                    
+                    if cheapest[set_v] == -1 or self.graph[cheapest[set_v][0]][2] > weight:
+                        cheapest[set_v] = (u, v, weight)
+            for i in range(self.V):
+                if cheapest[i] != -1:
+                    u, v, weight = cheapest[i]
+                    MST_edges.append((self.reverse_map[u], self.reverse_map[v], weight))
+                    print(f"Selected edge {self.reverse_map[u]} -- {self.reverse_map[v]} == {weight}")
+                
+                    total_cost += weight
+
+                    # Union the two components
+                    component_u = component[u]
+                    component_v = component[v]
+                    for j in range(self.V):
+                        if component[j] == component_v:
+                            component[j] = component_u
+
+                    num_components -= 1
+
+        print("\nMinimum Spanning Tree (MST) constructed by Borůvka's Algorithm:")
+        for u, v, weight in MST_edges:
+            print(f"{u} -- {v} == {weight}")
+        print(f"Total cost of MST: {total_cost}")     
+        self.save_graph_data(MST_edges)
+
+
+
+class Dijkstra(Graph):
+    def __init__(self, vertices):
+        super().__init__(vertices)
+    
+    def run(self, start_vertex):
+        if start_vertex not in self.vertex_map:
+            print(f"Start vertex {start_vertex} not in graph.")
+            return
+
+        start_idx = self.vertex_map[start_vertex]
+        distances = [float('inf')] * self.V  # Initialize distances with infinity
+        distances[start_idx] = 0  # Distance to start vertex is 0
+        previous = [None] * self.V  # To reconstruct shortest paths
+        min_heap = [(0, start_idx)]  # Min-heap to select the vertex with the shortest known distance
+
+        print(f"Starting Dijkstra's algorithm from vertex: {start_vertex}")
+
+        while min_heap:
+            current_distance, u = heapq.heappop(min_heap)
+
+            # If the current distance is greater than the recorded one, skip
+            if current_distance > distances[u]:
+                continue
+
+            # Explore neighbors
+            for edge in self.graph:
+                src, dest, weight = edge
+                if src == u:
+                    v = dest
+                elif dest == u:
+                    v = src
+                else:
+                    continue
+                
+                distance = current_distance + weight
+
+                # Only update if the new path is shorter
+                if distance < distances[v]:
+                    distances[v] = distance
+                    previous[v] = u
+                    heapq.heappush(min_heap, (distance, v))
+                    print(f"Updated distance of {self.reverse_map[v]} to {distance} via {self.reverse_map[u]}")
+
+        print("\nShortest paths from start vertex:")
+        for i, d in enumerate(distances):
+            print(f"Distance to {self.reverse_map[i]}: {d}")
+            pause_for_output()
+        print("\nPath reconstruction:")
+        for end_idx in range(self.V):
+            if distances[end_idx] == float('inf'):
+                print(f"No path to {self.reverse_map[end_idx]}")
+                continue
+
+            path = []
+            current = end_idx
+            while current is not None:
+                path.append(self.reverse_map[current])
+                current = previous[current]
+            path.reverse()
+            print(f"Path to {self.reverse_map[end_idx]}: {' -> '.join(path)}")
+
+        self.save_graph_data(distances, previous)
+
+    def save_graph_data(self, distances, previous):
+        data = {
+            "vertices": self.vertex_labels,
+            "distances": distances,
+            "paths": []
+        }
+
+        for end_idx in range(self.V):
+            if distances[end_idx] == float('inf'):
+                data["paths"].append(f"No path to {self.reverse_map[end_idx]}")
+                continue
+
+            path = []
+            current = end_idx
+            while current is not None:
+                path.append(self.reverse_map[current])
+                current = previous[current]
+            path.reverse()
+            data["paths"].append(" -> ".join(path))
+            pause_for_output()
+
+        with open('graph_data.json', 'w') as f:
+            json.dump(data, f, indent=4)
+        time.sleep(1) 
+        open_browser()
+
+
+class Dials(Graph):
+    def __init__(self, vertices, max_weight=15):
+        super().__init__(vertices)
+        self.max_weight = max_weight 
 
     def run(self, start_vertex):
-        mst = []
-        visited = set()
-        edges = []
+        if start_vertex not in self.vertex_map:
+            print(f"Start vertex {start_vertex} not in graph.")
+            return
 
-        # Start with the given start vertex
-        visited.add(start_vertex)
-        self._add_edges(start_vertex, edges, visited)
+        start_idx = self.vertex_map[start_vertex]
 
-        # Loop to find the MST edges
-        while len(visited) < self.V:
-            # If there are no more edges to process, break
-            if not edges:
-                print("No more edges available to process. MST construction failed.")
-                break
+        distances = {vertex: math.inf for vertex in self.vertex_map}
+        distances[start_vertex] = 0
+        predecessor = {vertex: None for vertex in self.vertex_map}
 
-            # Find the minimum weight edge from the current edges list
-            edges.sort(key=lambda edge: edge[2])  # Sort edges by weight
-            u, v, weight = edges.pop(0)
+        # Initialize the bucket queue with size of max_weight+1
+        buckets = [[] for _ in range(self.max_weight + 1)]
 
-            # If the edge connects a visited vertex to a non-visited vertex
-            if v not in visited:
-                visited.add(v)
-                mst.append((u, v, weight))  # Add to MST
-                self._add_edges(v, edges, visited)  # Add new edges from v
+        # Add the start vertex to the first bucket (distance 0)
+        buckets[0].append(start_vertex)
 
-        self.display_mst(mst)
+        print(f"Starting Dial's algorithm from vertex: {start_vertex}")
 
-    def _add_edges(self, vertex, edges, visited):
-        # Add edges from the current vertex to all other vertices that aren't visited
-        for u, v, weight in self.graph:
-            if u == vertex and v not in visited:
-                edges.append((u, v, weight))
-            elif v == vertex and u not in visited:
-                edges.append((v, u, weight))
+        # Process each bucket
+        while any(buckets):
+            for d in range(self.max_weight + 1):
+                if buckets[d]:
+                    current_vertex = buckets[d].pop(0)  # Pop the first element in this bucket
+                    break
 
-    def display_mst(self, mst):
-        print("Prim's MST:")
-        for u, v, w in mst:
-            print(f"{self.reverse_map[u]} -- {self.reverse_map[v]} == {w}")
-        print()
-        self.save_graph_data(mst)  # Save graph and MST data
-        self.cost(mst)  # Display the cost of the MST
+            # For each neighbor of the current vertex
+            for edge in self.graph:
+                u, v, weight = edge
+                u_label = self.reverse_map[u]
+                v_label = self.reverse_map[v]
 
-    def cost(self, mst):
-        minimum_cost = sum([w for u, v, w in mst])
-        print("Edges in the MST:")
-        for u, v, weight in mst:
-            print(f"{self.reverse_map[u]} -- {self.reverse_map[v]} == {weight}")
-        print(f"Minimum Spanning Tree Cost: {minimum_cost}")
+                if u_label == current_vertex:
+                    neighbor = v_label
+                elif v_label == current_vertex:
+                    neighbor = u_label
+                else:
+                    continue  # Skip if it's not a neighbor
+
+                # Relax the edge
+                if distances[current_vertex] + weight < distances[neighbor]:
+                    distances[neighbor] = distances[current_vertex] + weight
+                    predecessor[neighbor] = current_vertex
+                    new_distance = min(distances[neighbor], self.max_weight)
+                    buckets[new_distance].append(neighbor)
+                    print(f"Updated distance of {neighbor} to {distances[neighbor]} via {current_vertex}")
+                    pause_for_output()  # Pause for output (if needed for visualization)
+
+        # Calculate the total cost (sum of distances to all reachable vertices)
+        total_cost = sum(dist for dist in distances.values() if dist != math.inf)
+        print(f"Total cost: {total_cost}")
+
+        # Save graph data to JSON
+        graph_data = {
+            "vertices": self.vertex_map,
+            "edges": [(u, v, w) for u, v, w in self.graph],
+            "distances": distances,
+            "predecessor": predecessor,
+            "mst": [],  # Add MST edges here if applicable
+            "total_cost": total_cost  # Add the total cost to the graph data
+        }
+
+        with open('dials_graph_data.json', 'w') as f:
+            json.dump(graph_data, f)
+
+        print("\nGraph data saved to 'graph_data.json'.")
 
 def prompt_user_for_input():
     V = int(input("Enter the number of vertices: "))
     print("Select algorithm:")
     print("1) Kruskal's Algorithm")
     print("2) Prim's Algorithm")
-    print("3) Borůvka’s Algorithm")  # Placeholder for Borůvka’s Algorithm
-    print("4) Dijkstra’s Algorithm")  # Placeholder for Dijkstra’s Algorithm
-    print("5) Dial’s Algorithm")  # Placeholder for Dial’s Algorithm
+    print("3) Borůvka's Algorithm")  
+    print("4) Dijkstra's Algorithm")  
+    print("5) Dial's Algorithm")  
     choice = int(input("Enter your choice: "))
     
     if choice == 1:
         graph = Kruskal(V)
     elif choice == 2:
-        graph = Prim(V)
+        graph = Prims(V)
     elif choice == 3:
-        graph = Boruvka(V)  # Placeholder for Borůvka’s Algorithm
+        graph = Boruvka(V)  
     elif choice == 4:
-        graph = Dijkstra(V)  # Placeholder for Dijkstra’s Algorithm
+        graph = Dijkstra(V) 
     elif choice == 5:
-        graph = Dials(V)  # Placeholder for Dial’s Algorithm
+        graph = Dials(V) 
     else:
         print("Invalid choice")
         return None, None
@@ -1755,23 +1961,23 @@ def greedy():
     g, choice = prompt_user_for_input()
     
     if g is None:
-        return  # Exit the function if an invalid choice was made
+        return  
     
     g.display_graph()
     
     if choice == 1:
-        g.run()  # Kruskal's Algorithm
+        g.run()  
     elif choice == 2:
         start_vertex = input("Enter the starting vertex: ")
-        g.run(start_vertex)  # Prim's Algorithm
+        g.run(start_vertex) 
     elif choice == 3:
-        g.run()  # Borůvka’s Algorithm (To be implemented)
+        g.run() 
     elif choice == 4:
         start_vertex = (input("Enter the starting vertex: "))
-        g.run(start_vertex)  # Dijkstra’s Algorithm (To be implemented)
+        g.run(start_vertex)  
     elif choice == 5:
         start_vertex = (input("Enter the starting vertex: "))
-        g.run(start_vertex)  # Dial’s Algorithm (To be implemented)
+        g.run(start_vertex)  
     
 def main():
 
@@ -1783,7 +1989,7 @@ def main():
         while True:
             clear_screen()
             show_main_menu()
-            main_choice = int(input("Enter your choice: \n"))
+            main_choice = int(input("\nEnter your choice: \n"))
             
             if main_choice == 1:
                 calculator.calculator_menu()

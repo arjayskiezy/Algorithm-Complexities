@@ -34,39 +34,43 @@
 <body>
     <svg width="800" height="600"></svg>
     <script>
+        let currentEdgeIndex = 0;
+        let mstEdges = [];
+    
         d3.json("graph_data.json").then(data => {
             const svg = d3.select("svg"),
                   width = +svg.attr("width"),
                   height = +svg.attr("height");
-
+    
             // Create force simulation
             const simulation = d3.forceSimulation()
                 .force("link", d3.forceLink().id(d => d.id).distance(100))
                 .force("charge", d3.forceManyBody().strength(-300))
-                .force("center", d3.forceCenter(width / 2, height / 2)); // Center force
-
+                .force("center", d3.forceCenter(width / 2, height / 2)); 
+    
             // Convert data to D3 format
             const nodes = Object.keys(data.vertices).map(id => ({
                 id,
                 label: data.vertices[id],
-                x: Math.random() * width, // Random initial position
+                x: Math.random() * width,
                 y: Math.random() * height
             }));
-
+    
             const edges = data.edges.map(edge => ({
                 source: edge[0].toString(),
                 target: edge[1].toString(),
                 weight: edge[2]
             }));
-
-            const mstEdges = new Set(data.mst.map(edge => JSON.stringify(edge)));
-
+    
+            mstEdges = data.mst;
+    
             // Draw links (edges)
             const link = svg.selectAll(".link")
                 .data(edges)
                 .enter().append("line")
-                .attr("class", d => mstEdges.has(JSON.stringify([+d.source, +d.target, d.weight])) ? "mst-link" : "link");
-
+                .attr("class", "link")
+                .attr("id", d => d.source + "-" + d.target); 
+    
             // Draw edge weights (labels)
             const edgeLabels = svg.selectAll(".edge-label")
                 .data(edges)
@@ -74,7 +78,7 @@
                 .attr("class", "edge-label")
                 .attr("text-anchor", "middle")
                 .text(d => d.weight);
-
+    
             // Draw nodes
             const node = svg.selectAll(".node")
                 .data(nodes)
@@ -84,14 +88,14 @@
                     .on("start", dragstarted)
                     .on("drag", dragged)
                     .on("end", dragended));
-
+    
             node.append("circle")
                 .attr("r", 20);
-
+    
             node.append("text")
                 .attr("dy", 5)
                 .text(d => d.label);
-
+    
             // Update positions on tick
             simulation.nodes(nodes).on("tick", () => {
                 link
@@ -99,53 +103,62 @@
                     .attr("y1", d => d.source.y)
                     .attr("x2", d => d.target.x)
                     .attr("y2", d => d.target.y);
-
+    
                 edgeLabels
                     .attr("x", d => (d.source.x + d.target.x) / 2)
                     .attr("y", d => (d.source.y + d.target.y) / 2);
-
+    
                 node
                     .attr("transform", d => `translate(${d.x},${d.y})`);
             });
-
+    
             simulation.force("link").links(edges);
-
+    
+            function highlightEdge(u, v) {
+                const edgeId = u + "-" + v;
+                const edgeElement = document.getElementById(edgeId);
+                if (edgeElement) {
+                    edgeElement.classList.add("mst-link");
+                }
+            }
+    
+            function unhighlightEdges() {
+                svg.selectAll(".mst-link").classed("mst-link", false);
+            }
+    
+            function stepThroughEdges() {
+                // Highlight current edge
+                let edge = mstEdges[currentEdgeIndex];
+                highlightEdge(edge[0], edge[1]);
+    
+                // Move to the next edge
+                currentEdgeIndex++;
+    
+                // If at the end of MST edges, unhighlight all and reset
+                if (currentEdgeIndex >= mstEdges.length) {
+                    setTimeout(() => {
+                        unhighlightEdges();
+                        currentEdgeIndex = 0; // Restart from the beginning
+                    }, 1000); // Delay before unhighlighting all
+                }
+            }
+    
+            // Start highlighting each edge at a regular interval (1 second)
+            setInterval(stepThroughEdges, 1000);
+    
             function dragstarted(event, d) {
                 if (!event.active) simulation.alphaTarget(0.3).restart();
-                // "Freeze" all nodes except the one being dragged
-                nodes.forEach(n => {
-                    if (n !== d) {
-                        n.fx = n.x;
-                        n.fy = n.y;
-                    }
-                });
                 d.fx = d.x;
                 d.fy = d.y;
             }
-
+    
             function dragged(event, d) {
-                // Update the position of the dragged node
                 d.fx = event.x;
                 d.fy = event.y;
             }
-
+    
             function dragended(event, d) {
-                // After dragging ends, prevent the forces from affecting other nodes
                 if (!event.active) simulation.alphaTarget(0);
-
-                // Only update the dragged node's position and leave others stationary
-                d.fx = d.x;
-                d.fy = d.y;
-
-                // "Freeze" the other nodes completely (do not reset forces for other nodes)
-                nodes.forEach(n => {
-                    if (n !== d) {
-                        n.fx = n.x;
-                        n.fy = n.y;
-                    }
-                });
-
-                // Ensure the dragged node stays in its new position
                 d.fx = d.x;
                 d.fy = d.y;
             }
