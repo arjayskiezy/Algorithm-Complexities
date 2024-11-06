@@ -15,7 +15,7 @@ import atexit
 
 def start_http_server():
     try:
-        process = subprocess.Popen(['python3', '-m', 'http.server', '8000'], cwd='/home/arjay/Repository/Algorithm-Complexities')
+        process = subprocess.Popen(['python3', '-m', 'http.server', '8080'], cwd='/home/arjay/Repository/Algorithm-Complexities',stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return process
     except FileNotFoundError as e:
         print(f"Error starting HTTP server: {e}")
@@ -71,11 +71,7 @@ def show_main_menu():
     print("21) Coin Change Problem")
     print("22) Mice to Holes Problem")
     print("\nGreedy Algorithm In Graphs")
-    print("23) Kruskal's Algorithm")
-    print("24) Prim's Algorithm")
-    print("25) Boruvka's Algorithm")
-    print("26) Dijsktra's Algorithm")
-    print("27) Dial's Algorithm")
+    print("23) Minimum Spanning Tree")
     print("\n00) Exit")
 
 class Calculator:
@@ -217,7 +213,7 @@ class Calculator:
             print("1) Generate prime numbers up to a given number")
             print("2) Back to Main Menu")
 
-            choice = int(input("Enter your choice: "))
+            choice = int(input("348:s "))
             if choice == 2:
                 break
             elif choice == 1:
@@ -345,7 +341,7 @@ def conversion_menu():
         for i, (desc, _) in enumerate(conversion_methods):
             print(f"{i + 1}) {desc}")
 
-        conv_choice = int(input("Enter your choice: "))
+        conv_choice = int(input("348: "))
         
         if conv_choice == 5:
             break
@@ -1450,10 +1446,10 @@ class HuffmanCoding:
                 counter[0] += 1
                 add_edges(graph, node.right, [counter[0], right_id])
 
-        # Create the graph with a larger size and black background
+
         dot = Digraph(node_attr={'margin': '2', 'color': 'lightgrey', 'style': 'filled', 'shape': 'box', 'bgcolor': 'white'}, edge_attr={'color': 'blue'}, graph_attr={'size': '40,40'})
 
-        # Check if the root data is empty, then format accordingly
+
         if root.data == '':
             dot.node('0', f"{root.data}\n{root.freq}", shape="circle", style="filled", color="yellow", fontcolor="white", fillcolor="darkviolet", width="1.0", height="1.0", fixedsize="true", fontweight="bold", fontsize="16", labeljust="c", labelloc="t")
         else:
@@ -1461,7 +1457,7 @@ class HuffmanCoding:
 
         add_edges(dot, root, [2, 0])
 
-        # Render and display the output image
+  
         dot.render('huffman_tree', format='png', view=True)
 
     def run_huffman_coding(self):
@@ -1567,65 +1563,35 @@ def knapsack_menu():
     clear_screen()
     knapsack()
 
-
 class Graph:
     def __init__(self, vertices):
         self.V = vertices
         self.graph = []
-        self.vertex_labels = {}
+        self.vertex_map = {}  
+        self.reverse_map = {}  
+        self.vertex_labels = []  # List to keep track of original labels for vertices
 
     def add_edge(self, u, v, w):
-        self.graph.append([u, v, w])
+        # Ensure the vertices are in the mapping
+        if u not in self.vertex_map:
+            idx = len(self.vertex_map)
+            self.vertex_map[u] = idx
+            self.reverse_map[idx] = u
+            self.vertex_labels.append(u)  # Add label to vertex list
+        if v not in self.vertex_map:
+            idx = len(self.vertex_map)
+            self.vertex_map[v] = idx
+            self.reverse_map[idx] = v
+            self.vertex_labels.append(v)  # Add label to vertex list
+        
+        # Add the edge using integer indices
+        self.graph.append([self.vertex_map[u], self.vertex_map[v], w])
 
-    def find(self, parent, i):
-        if parent[i] == i:
-            return i
-        return self.find(parent, parent[i])
-
-    def union(self, parent, rank, x, y):
-        root_x = self.find(parent, x)
-        root_y = self.find(parent, y)
-
-        if rank[root_x] < rank[root_y]:
-            parent[root_x] = root_y
-        elif rank[root_x] > rank[root_y]:
-            parent[root_y] = root_x
-        else:
-            parent[root_y] = root_x
-            rank[root_x] += 1
-
-    def kruskal_mst(self):
-        result = []
-        i = 0
-        e = 0
-
-        self.graph = sorted(self.graph, key=lambda item: item[2])
-
-        parent = []
-        rank = []
-
-        for node in range(self.V):
-            parent.append(node)
-            rank.append(0)
-
-        while e < self.V - 1 and i < len(self.graph):
-            u, v, w = self.graph[i]
-            i += 1
-            x = self.find(parent, u)
-            y = self.find(parent, v)
-
-            if x != y:
-                e += 1
-                result.append([u, v, w])
-                self.union(parent, rank, x, y)
-
-        minimum_cost = sum([w for u, v, w in result])
-        print("Edges in the MST:")
-        for u, v, weight in result:
-            print(f"{self.vertex_labels[u]} -- {self.vertex_labels[v]} == {weight}")
-        print(f"Minimum Spanning Tree Cost: {minimum_cost}")
-
-        return result
+    def display_graph(self):
+        print("Graph:")
+        for u, v, w in self.graph:
+            print(f"{self.reverse_map[u]} -- {self.reverse_map[v]} == {w}")
+        print()
 
     def save_graph_data(self, mst):
         data = {
@@ -1635,38 +1601,181 @@ class Graph:
         }
         with open('graph_data.json', 'w') as f:
             json.dump(data, f)
+        time.sleep(1)  
+        open_browser()
+    
+class Kruskal(Graph):
+    def __init__(self, vertices):
+        super().__init__(vertices)
+        self.parent = []
+        self.rank = []
+        self.initialize_kruskal()
+
+    def initialize_kruskal(self):
+        # Initialize parent and rank based on the number of vertices
+        self.parent = list(range(len(self.vertex_map)))  # Parent list initialized with the number of vertices
+        self.rank = [0] * len(self.vertex_map)  # Rank list initialized for each vertex
+
+    def find(self, i):
+        if self.parent[i] == i:
+            return i
+        return self.find(self.parent[i])
+
+    def union(self, x, y):
+        root_x = self.find(x)
+        root_y = self.find(y)
+        if self.rank[root_x] < self.rank[root_y]:   
+            self.parent[root_x] = root_y
+        elif self.rank[root_x] > self.rank[root_y]:
+            self.parent[root_y] = root_x
+        else:
+            self.parent[root_y] = root_x
+            self.rank[root_x] += 1
+        
+
+    def run(self):
+        self.graph = sorted(self.graph, key=lambda item: item[2])
+        self.initialize_kruskal()  # Ensure parent and rank are reinitialized
+        mst = []
+        for u, v, w in self.graph:
+            x = self.find(u)
+            y = self.find(v)
+            if x != y:
+                mst.append([u, v, w])
+                self.union(x, y)
+        self.display_mst(mst)
+        
+
+    def display_mst(self, mst):
+        print("Kruskal's MST:")
+        for u, v, w in mst:
+            print(f"{self.reverse_map[u]} -- {self.reverse_map[v]} == {w}")
+        print()
+        self.cost(mst)
+        pause_for_output()
+        self.save_graph_data(mst)  # Save graph and MST data
+
+    def cost(self, mst):
+        minimum_cost = sum([w for u, v, w in mst])
+        print("Edges in the MST:")
+        for u, v, weight in mst:
+            print(f"{self.reverse_map[u]} -- {self.reverse_map[v]} == {weight}")
+        print(f"Minimum Spanning Tree Cost: {minimum_cost}")
+
+    
+
+class Prim(Graph):
+    def __init__(self, vertices):
+        super().__init__(vertices)
+
+    def run(self, start_vertex):
+        mst = []
+        visited = set()
+        edges = []
+
+        # Start with the given start vertex
+        visited.add(start_vertex)
+        self._add_edges(start_vertex, edges, visited)
+
+        # Loop to find the MST edges
+        while len(visited) < self.V:
+            # If there are no more edges to process, break
+            if not edges:
+                print("No more edges available to process. MST construction failed.")
+                break
+
+            # Find the minimum weight edge from the current edges list
+            edges.sort(key=lambda edge: edge[2])  # Sort edges by weight
+            u, v, weight = edges.pop(0)
+
+            # If the edge connects a visited vertex to a non-visited vertex
+            if v not in visited:
+                visited.add(v)
+                mst.append((u, v, weight))  # Add to MST
+                self._add_edges(v, edges, visited)  # Add new edges from v
+
+        self.display_mst(mst)
+
+    def _add_edges(self, vertex, edges, visited):
+        # Add edges from the current vertex to all other vertices that aren't visited
+        for u, v, weight in self.graph:
+            if u == vertex and v not in visited:
+                edges.append((u, v, weight))
+            elif v == vertex and u not in visited:
+                edges.append((v, u, weight))
+
+    def display_mst(self, mst):
+        print("Prim's MST:")
+        for u, v, w in mst:
+            print(f"{self.reverse_map[u]} -- {self.reverse_map[v]} == {w}")
+        print()
+        self.save_graph_data(mst)  # Save graph and MST data
+        self.cost(mst)  # Display the cost of the MST
+
+    def cost(self, mst):
+        minimum_cost = sum([w for u, v, w in mst])
+        print("Edges in the MST:")
+        for u, v, weight in mst:
+            print(f"{self.reverse_map[u]} -- {self.reverse_map[v]} == {weight}")
+        print(f"Minimum Spanning Tree Cost: {minimum_cost}")
 
 def prompt_user_for_input():
     V = int(input("Enter the number of vertices: "))
-    graph = Graph(V)
-
-    vertex_labels = {}
-    for i in range(V):
-        label = chr(65 + i)
-        vertex_labels[label] = i
-        graph.vertex_labels[i] = label
-
+    print("Select algorithm:")
+    print("1) Kruskal's Algorithm")
+    print("2) Prim's Algorithm")
+    print("3) Borůvka’s Algorithm")  # Placeholder for Borůvka’s Algorithm
+    print("4) Dijkstra’s Algorithm")  # Placeholder for Dijkstra’s Algorithm
+    print("5) Dial’s Algorithm")  # Placeholder for Dial’s Algorithm
+    choice = int(input("Enter your choice: "))
+    
+    if choice == 1:
+        graph = Kruskal(V)
+    elif choice == 2:
+        graph = Prim(V)
+    elif choice == 3:
+        graph = Boruvka(V)  # Placeholder for Borůvka’s Algorithm
+    elif choice == 4:
+        graph = Dijkstra(V)  # Placeholder for Dijkstra’s Algorithm
+    elif choice == 5:
+        graph = Dials(V)  # Placeholder for Dial’s Algorithm
+    else:
+        print("Invalid choice")
+        return None, None
+        
     E = int(input("Enter the number of edges: "))
+    print("Enter the edges (vertex1 vertex2 weight):")
     for _ in range(E):
-        u, v, w = input("Edge (vertex1 vertex2 weight): ").upper().split()
-        graph.add_edge(vertex_labels[u], vertex_labels[v], int(w))
+        u, v, w = input("Edge (vertex1 vertex2 weight): ").split()
+        graph.add_edge(u, v, int(w))
+        
+    return graph, choice
 
-    return graph
-
-def kruskals_menu():
-    g = prompt_user_for_input()
-    mst = g.kruskal_mst()
-    g.save_graph_data(mst)
-    time.sleep(1)  # Adjust the delay if needed
-    open_browser()
-    pause_for_output()
-
+def greedy():
+    g, choice = prompt_user_for_input()
+    
+    if g is None:
+        return  # Exit the function if an invalid choice was made
+    
+    g.display_graph()
+    
+    if choice == 1:
+        g.run()  # Kruskal's Algorithm
+    elif choice == 2:
+        start_vertex = input("Enter the starting vertex: ")
+        g.run(start_vertex)  # Prim's Algorithm
+    elif choice == 3:
+        g.run()  # Borůvka’s Algorithm (To be implemented)
+    elif choice == 4:
+        start_vertex = (input("Enter the starting vertex: "))
+        g.run(start_vertex)  # Dijkstra’s Algorithm (To be implemented)
+    elif choice == 5:
+        start_vertex = (input("Enter the starting vertex: "))
+        g.run(start_vertex)  # Dial’s Algorithm (To be implemented)
     
 def main():
-    # Start the HTTP server
-    http_process = start_http_server()
 
-    # Initialize calculator and other objects
+    http_process = start_http_server()
     calculator = Calculator()
     des = DES()
     
@@ -1674,7 +1783,7 @@ def main():
         while True:
             clear_screen()
             show_main_menu()
-            main_choice = int(input("Enter your choice: "))
+            main_choice = int(input("Enter your choice: \n"))
             
             if main_choice == 1:
                 calculator.calculator_menu()
@@ -1717,7 +1826,7 @@ def main():
             elif main_choice == 20:
                 knapsack_menu()
             elif main_choice == 23:
-                kruskals_menu()
+                greedy()
             elif main_choice == 00:
                 print("Exiting the program...")
                 break
@@ -1726,7 +1835,7 @@ def main():
                 pause_for_output()
     except KeyboardInterrupt:
         print("\nProgram interrupted (Ctrl+C). Exiting...")
-    finally:
+    finally:    
         # Ensure that the server is terminated when the program exits
         if http_process:
             terminate_http_server(http_process)
