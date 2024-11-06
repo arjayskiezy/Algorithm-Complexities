@@ -24,7 +24,7 @@ def start_http_server():
 
 def terminate_http_server(process):
     if process:
-        process.terminate()  # Terminate the HTTP server process
+        process.terminate() 
         process.wait()  
 
 atexit.register(terminate_http_server)
@@ -159,7 +159,7 @@ class Calculator:
     def calculate_lcm(self, a, b):
         """Calculate LCM of two numbers and show steps."""
         print(f"Calculating LCM of {a} and {b}:")
-        gcd = self.calculate_gcd(a, b)  # Calculate GCD first to find LCM
+        gcd = self.calculate_gcd(a, b)  
         lcm = abs(a * b) // gcd
         print(f"LCM formula: LCM(a, b) = |a * b| / GCD(a, b)")
         print(f"Using GCD({a}, {b}) = {gcd}, the LCM is: {lcm}")
@@ -273,13 +273,13 @@ class Calculator:
 
     def modular_arithmetic(self, expression, modulus):
         """Evaluate an expression under a modulus and show steps."""
-        parsed_expr = parse_expr(expression)  # Parse the expression
+        parsed_expr = parse_expr(expression)
         print(f"Parsed expression: {parsed_expr}")
-        simplified_expr = simplify(parsed_expr)# Simplify the expression
+        simplified_expr = simplify(parsed_expr)
         print(f"Simplified expression: {simplified_expr}")
-        mod_expr = Mod(simplified_expr, modulus)  # Calculate the modular result
+        mod_expr = Mod(simplified_expr, modulus)
         print(f"Calculating: ({simplified_expr}) mod {modulus}")
-        return mod_expr   # Return the result of the modular operation
+        return mod_expr   
         
 
 def convert_to_egyptian(numerator, denominator):
@@ -303,19 +303,18 @@ def convert_to_egyptian(numerator, denominator):
     print(f"Converting {numerator}/{denominator} to Egyptian fractions:")
     
     while numerator != 0:
-        # Calculate the next unit fraction
-        unit_fraction = -(-denominator // numerator)  # Equivalent to ceil(denominator / numerator)
+        unit_fraction = -(-denominator // numerator)  
         egyptian_fractions.append(unit_fraction)
         
         print(f"  Adding unit fraction: 1/{unit_fraction}")
 
-        # Update the numerator and denominator
+      
         new_numerator = numerator * unit_fraction - denominator
         new_denominator = denominator * unit_fraction
         
         print(f"  New fraction: {new_numerator}/{new_denominator} after subtracting 1/{unit_fraction}")
         
-        # Simplify the fraction
+  
         if new_numerator != 0:
             gcd = Calculator.calculate_gcd(0, abs(new_numerator), new_denominator)
             numerator = new_numerator // gcd
@@ -545,14 +544,14 @@ def prime_factorization_menu():
 def prime_factors(n):
     factors = []
     
-    # Check for number of 2s that divide n
+    
     while n % 2 == 0:
         factors.append(2)
         print(f"Found factor: 2")
         n //= 2
         print(f"Reducing n: Now n = {n}")
     
-    # n must be odd at this point, so we can skip even numbers
+    
     for i in range(3, int(n**0.5) + 1, 2):
         while n % i == 0:
             factors.append(i)
@@ -560,7 +559,7 @@ def prime_factors(n):
             n //= i
             print(f"Reducing n: Now n = {n}")
     
-    # This condition is to check if n is a prime number greater than 2
+    
     if n > 2:
         factors.append(n)
         print(f"Found factor: {n}")
@@ -630,16 +629,16 @@ def rsa_encrypt_decrypt(p, q, e, plaintext):
     attempts = []
     found = False
 
-    # Increase the upper limit or use a while loop
-    for i in range(1, 1000):  # Try values of i up to 999
+    
+    for i in range(1, 1000): 
         potential_d = (phi_n * i + 1) / e
-        attempts.append((i, round(potential_d, 2)))  # Store with 2 decimal places
-        if potential_d == int(potential_d):  # Check if it is an integer
+        attempts.append((i, round(potential_d, 2)))  
+        if potential_d == int(potential_d):
             D = int(potential_d)
             found = True
             break
 
-    # Display the step-by-step process of finding D
+    
     print("\nStep 2: Finding D with each i value:")
     for attempt in attempts:
         i_val, d_val = attempt
@@ -650,19 +649,19 @@ def rsa_encrypt_decrypt(p, q, e, plaintext):
     else:
         print("\nFailed to find a valid D within the range.")
 
-    pause_for_output()  # Pause for output
+    pause_for_output()  
 
-    # Step 3: Encrypt the plaintext
-    ciphertext = pow(plaintext, e, n)  # Calculate (plaintext^e) % n
+  
+    ciphertext = pow(plaintext, e, n) 
     print(f"Step 3: Encrypting the plaintext")
     print(f"Ciphertext = plaintext^e mod n = {plaintext}^{e} mod {n} = {ciphertext}")
-    pause_for_output()  # Pause for output
+    pause_for_output()  
 
-    # Step 4: Decrypt the ciphertext
-    decrypted_text = pow(ciphertext, D, n)  # Calculate (ciphertext^D) % n
+   
+    decrypted_text = pow(ciphertext, D, n)  
     print(f"\nStep 4: Decrypting the ciphertext")
     print(f"Recovered plaintext = ciphertext^D mod n = {ciphertext}^{D} mod {n} = {decrypted_text}")
-    pause_for_output()  # Final pause
+    pause_for_output() 
 
     return {
         "n": n,
@@ -684,19 +683,19 @@ def diffie_hellman_menu():
 def diffie_hellman_key_exchange(p, g, a, b):
     """Perform Diffie-Hellman key exchange with key substitution until keys match."""
     
-    # Step 1: Calculate the public keys A and B
-    A = pow(g, a, p)  # A = g^a % p
-    B = pow(g, b, p)  # B = g^b % p
+   
+    A = pow(g, a, p)  
+    B = pow(g, b, p)  
     
     print(f"\nAlice A = g^a % p = {g}^{a} % {p} = {A}")
     print(f"Bob key B = g^b % p = {g}^{b} % {p} = {B}")
     
-    # Pause to show public keys
+    
     input("\nPress Enter to continue...")
     
-    # Step 2: Perform the key substitution until the keys match
-    shared_secret_A = A  # Initialize with A
-    shared_secret_B = B  # Initialize with B
+    
+    shared_secret_A = A  
+    shared_secret_B = B  
     
     print("\nStarting key substitution process...")
     
@@ -706,20 +705,20 @@ def diffie_hellman_key_exchange(p, g, a, b):
         print(f"Alice Current Key = {shared_secret_A}")
         print(f"Bob Current key = {shared_secret_B}")
         
-        # A computes new shared secret using B's current public key
+        
         shared_secret_A = pow(shared_secret_B, a, p)
         print(f"Alice new shared secret key = B^a % p = {shared_secret_B}^{a} % {p} = {shared_secret_A}")
         
-        # B computes new shared secret using A's current public key
+       
         shared_secret_B = pow(shared_secret_A, b, p)
         print(f"Bob friend's new shared secret key = A^b % p = {shared_secret_A}^{b} % {p} = {shared_secret_B}")
         
         iteration += 1
         
-        # Pause after each iteration
+        
         input("\nPress Enter to continue...")
 
-    # Step 3: Both shared secrets should now match
+   
     print("\nThe shared secret keys match!")
     print(f"Final shared secret key = {shared_secret_A}")
     
@@ -1282,7 +1281,6 @@ class DES:
         print("\n\n| ----- DES ----- |\n\n")
         pause_for_output()
 
-# Input data from user
 def activity_menu():
     clear_screen()
     n = int(input("Enter the number of activities: "))
@@ -1293,7 +1291,7 @@ def activity_menu():
         end = int(input(f"End time for Activity {i + 1}: "))
         activities.append((start, end))
     
-    # Display activity data in table format
+    
     print("\nActivity Data:\n")
     print("+-----------+-----------+-----------+")
     print("| Activity  | Start     | End       |")
@@ -1303,24 +1301,24 @@ def activity_menu():
     print("+-----------+-----------+-----------+")
     pause_for_output()
     
-    # Function Call
+    
     activitySelection(activities)
     
 def activitySelection(activities):
-    # Sort activities by their end times
+  
     activities.sort(key=lambda x: x[1])
 
-    # Select the first activity
+    
     selected_activities = [activities[0]]
     last_end_time = activities[0][1]
 
-    # Iterate over the sorted activities and select if they don't overlap
+    
     for i in range(1, len(activities)):
         if activities[i][0] >= last_end_time:
             selected_activities.append(activities[i])
             last_end_time = activities[i][1]
 
-    # Display result
+    
     print("\nSelected Activities for Maximum Number:")
     print("+-----------+-----------+-----------+")
     print("| Activity  | Start     | End       |")
@@ -1333,24 +1331,23 @@ def activitySelection(activities):
 def printJobScheduling(arr, t):
     n = len(arr)
     
-    # Sort all jobs by profit in descending order
+    
     arr.sort(key=lambda x: x[2], reverse=True)
 
-    # Track free time slots
+    
     result = [False] * t
     job_sequence = ['-'] * t
     total_profit = 0
 
-    # Schedule jobs for max profit
     for i in range(len(arr)):
         for j in range(min(t - 1, arr[i][1] - 1), -1, -1):
-            if not result[j]:  # Check for free slot
+            if not result[j]:
                 result[j] = True
                 job_sequence[j] = arr[i][0]
-                total_profit += arr[i][2]  # Add profit of scheduled job
+                total_profit += arr[i][2]  
                 break
 
-    # Display job sequence and maximum profit
+    
     print("\nJob Sequence for Maximum Profit:")
     print("+-----+-----+-----+")
     print("| " + "   ".join(job_sequence) + "  |")
@@ -1358,7 +1355,7 @@ def printJobScheduling(arr, t):
     print(f"Maximum Profit: {total_profit}")
 
 
-# Input data from user
+
 def job_sequencing_menu():
     clear_screen()
     n = int(input("Enter the number of jobs: "))
@@ -1369,7 +1366,7 @@ def job_sequencing_menu():
         profit = int(input(f"Profit for J{i + 1}: "))
         jobs.append([f"J{i + 1}", deadline, profit])
     
-    # Display job data in table format
+    
     print("\nJob Data:\n")
     print("+-----------+-----------+-----------+")
     print("| Job       | Deadline  | Profit    |")
@@ -1378,10 +1375,10 @@ def job_sequencing_menu():
         print(f"| {job[0]:<9} | {job[1]:<9} | {job[2]:<9} |")
     print("+-----------+-----------+-----------+")
     
-    # Define max time slots as maximum deadline
+    
     max_time_slots = max(job[1] for job in jobs)
 
-    # Function Call
+    
     printJobScheduling(jobs, max_time_slots)
 
 
@@ -1417,8 +1414,8 @@ class HuffmanCoding:
         total_frequency = 0
 
         for ch, freq in zip(chars, freqs):
-            original_bits = code_lengths.get(ch, 0)  # Assuming 8 bits for the original character
-            encoded_bits = freq * code_lengths.get(ch, 0)  # Length of the Huffman code
+            original_bits = code_lengths.get(ch, 0) 
+            encoded_bits = freq * code_lengths.get(ch, 0)  
 
             print(f"| {ch:<9} | {freq:<9} | {huffman_codes.get(ch, '-'): <14} | {original_bits:<14} | {encoded_bits:<14} |")
             initial_bits += original_bits
@@ -1507,7 +1504,7 @@ class Item:
         self.pw_ratio = profit / weight
 
 def fractional_knapsack(capacity, items):
-    # Sort items by profit-to-weight ratio in descending order
+   
     items.sort(key=lambda x: x.pw_ratio, reverse=True)
 
     total_profit = 0.0
@@ -1515,23 +1512,22 @@ def fractional_knapsack(capacity, items):
 
     for item in items:
         if capacity == 0:
-            break  # No more capacity left in the knapsack
+            break  
 
-        # If the item can be fully accommodated
+      
         if item.weight <= capacity:
             capacity -= item.weight
             total_profit += item.profit
-            fractions[item.index] = 1.0  # Full item is taken
+            fractions[item.index] = 1.0  
         else:
-            # Take the fraction of the remaining item
+          
             fraction = capacity / item.weight
             total_profit += item.profit * fraction
-            fractions[item.index] = fraction  # Fraction of the item is taken
-            capacity = 0  # Knapsack is now full
+            fractions[item.index] = fraction  
+            capacity = 0 
 
     return total_profit, fractions
 
-    # Driver code
 def knapsack():
     capacity = float(input("Enter the maximum capacity of the knapsack: "))
     n = int(input("Enter the number of items: "))
@@ -1542,7 +1538,7 @@ def knapsack():
         weight = float(input(f"Weight for item {i + 1}: "))
         items.append(Item(profit, weight, i))
 
-    # Display item data in table format
+    
     print("\nItems:")
     print("+------+--------+--------+-------------+")
     print("| Item | Profit | Weight | P/W Ratio   |")
@@ -1555,7 +1551,7 @@ def knapsack():
 
     print("\nFractions of items carried in the knapsack:")
     for i in range(n):
-        print(f"Item {i + 1}: {fractions[i]:.2f}")  # Print all items, including those with 0.00
+        print(f"Item {i + 1}: {fractions[i]:.2f}") 
 
     print(f"\nMaximum Profit: {max_profit:.2f}")
     pause_for_output()
@@ -1570,21 +1566,20 @@ class Graph:
         self.graph = []
         self.vertex_map = {}  
         self.reverse_map = {}  
-        self.vertex_labels = []  # List to keep track of original labels for vertices
+        self.vertex_labels = []  
 
     def add_edge(self, u, v, w):
         if u not in self.vertex_map:
             idx = len(self.vertex_map)
             self.vertex_map[u] = idx
             self.reverse_map[idx] = u
-            self.vertex_labels.append(u)  # Add label to vertex list
+            self.vertex_labels.append(u) 
         if v not in self.vertex_map:
             idx = len(self.vertex_map)
             self.vertex_map[v] = idx
             self.reverse_map[idx] = v
-            self.vertex_labels.append(v)  # Add label to vertex list
+            self.vertex_labels.append(v) 
         
-        # Add the edge using integer indices
         self.graph.append([self.vertex_map[u], self.vertex_map[v], w])
 
     def display_graph(self):
@@ -1614,8 +1609,8 @@ class Kruskal(Graph):
         self.initialize_kruskal()
 
     def initialize_kruskal(self):
-        self.parent = list(range(len(self.vertex_map)))  # Parent list initialized
-        self.rank = [0] * len(self.vertex_map)  # Rank list initialized for each vertex
+        self.parent = list(range(len(self.vertex_map))) 
+        self.rank = [0] * len(self.vertex_map)  
 
     def find(self, i):
         if self.parent[i] == i:
@@ -1635,7 +1630,7 @@ class Kruskal(Graph):
 
     def run(self):
         self.graph = sorted(self.graph, key=lambda item: item[2])
-        self.initialize_kruskal()  # Ensure parent and rank are reinitialized
+        self.initialize_kruskal()  
         mst = []
         for u, v, w in self.graph:
             x = self.find(u)
@@ -1666,17 +1661,17 @@ class Prims(Graph):
         super().__init__(vertices)
     
     def run(self, start_vertex):
-        # Convert the starting vertex to its integer index
+        
         if start_vertex not in self.vertex_map:
             print(f"Start vertex {start_vertex} not in graph.")
             return
 
         start_idx = self.vertex_map[start_vertex]
         
-        # Initialize data structures
-        mst_edges = []           # List to store MST edges
+        
+        mst_edges = []           
         visited = [False] * self.V
-        min_heap = [(0, start_idx, start_idx)]  # Heap stores tuples of (weight, from_vertex, to_vertex)
+        min_heap = [(0, start_idx, start_idx)]  
 
         total_weight = 0
         
@@ -1685,13 +1680,13 @@ class Prims(Graph):
         while min_heap:
             weight, u, v = heapq.heappop(min_heap)
 
-            # If we've already visited this vertex, skip
+           
             if visited[v]:
                 continue
 
-            # Mark the vertex as visited and add the edge to MST
+           
             visited[v] = True
-            if u != v:  # Skip the starting vertex to itself edge
+            if u != v:  
                 mst_edges.append((self.reverse_map[u], self.reverse_map[v], weight))
                 total_weight += weight
                 print(f"Selected edge {self.reverse_map[u]} -- {self.reverse_map[v]} == {weight}")
@@ -1746,7 +1741,7 @@ class Boruvka(Graph):
                 
                     total_cost += weight
 
-                    # Union the two components
+                    
                     component_u = component[u]
                     component_v = component[v]
                     for j in range(self.V):
@@ -1773,21 +1768,19 @@ class Dijkstra(Graph):
             return
 
         start_idx = self.vertex_map[start_vertex]
-        distances = [float('inf')] * self.V  # Initialize distances with infinity
-        distances[start_idx] = 0  # Distance to start vertex is 0
-        previous = [None] * self.V  # To reconstruct shortest paths
-        min_heap = [(0, start_idx)]  # Min-heap to select the vertex with the shortest known distance
+        distances = [float('inf')] * self.V  
+        distances[start_idx] = 0  
+        previous = [None] * self.V  
+        min_heap = [(0, start_idx)]  
 
         print(f"Starting Dijkstra's algorithm from vertex: {start_vertex}")
 
         while min_heap:
             current_distance, u = heapq.heappop(min_heap)
-
-            # If the current distance is greater than the recorded one, skip
+    
             if current_distance > distances[u]:
                 continue
 
-            # Explore neighbors
             for edge in self.graph:
                 src, dest, weight = edge
                 if src == u:
@@ -1799,7 +1792,6 @@ class Dijkstra(Graph):
                 
                 distance = current_distance + weight
 
-                # Only update if the new path is shorter
                 if distance < distances[v]:
                     distances[v] = distance
                     previous[v] = u
@@ -1868,23 +1860,19 @@ class Dials(Graph):
         distances = {vertex: math.inf for vertex in self.vertex_map}
         distances[start_vertex] = 0
         predecessor = {vertex: None for vertex in self.vertex_map}
-
-        # Initialize the bucket queue with size of max_weight+1
+        
         buckets = [[] for _ in range(self.max_weight + 1)]
 
-        # Add the start vertex to the first bucket (distance 0)
         buckets[0].append(start_vertex)
 
         print(f"Starting Dial's algorithm from vertex: {start_vertex}")
 
-        # Process each bucket
         while any(buckets):
             for d in range(self.max_weight + 1):
                 if buckets[d]:
-                    current_vertex = buckets[d].pop(0)  # Pop the first element in this bucket
+                    current_vertex = buckets[d].pop(0)  
                     break
 
-            # For each neighbor of the current vertex
             for edge in self.graph:
                 u, v, weight = edge
                 u_label = self.reverse_map[u]
@@ -1895,29 +1883,26 @@ class Dials(Graph):
                 elif v_label == current_vertex:
                     neighbor = u_label
                 else:
-                    continue  # Skip if it's not a neighbor
+                    continue 
 
-                # Relax the edge
                 if distances[current_vertex] + weight < distances[neighbor]:
                     distances[neighbor] = distances[current_vertex] + weight
                     predecessor[neighbor] = current_vertex
                     new_distance = min(distances[neighbor], self.max_weight)
                     buckets[new_distance].append(neighbor)
                     print(f"Updated distance of {neighbor} to {distances[neighbor]} via {current_vertex}")
-                    pause_for_output()  # Pause for output (if needed for visualization)
+                    pause_for_output() 
 
-        # Calculate the total cost (sum of distances to all reachable vertices)
         total_cost = sum(dist for dist in distances.values() if dist != math.inf)
         print(f"Total cost: {total_cost}")
 
-        # Save graph data to JSON
         graph_data = {
             "vertices": self.vertex_map,
             "edges": [(u, v, w) for u, v, w in self.graph],
             "distances": distances,
             "predecessor": predecessor,
-            "mst": [],  # Add MST edges here if applicable
-            "total_cost": total_cost  # Add the total cost to the graph data
+            "mst": [], 
+            "total_cost": total_cost  
         }
 
         with open('dials_graph_data.json', 'w') as f:
@@ -2042,7 +2027,7 @@ def main():
     except KeyboardInterrupt:
         print("\nProgram interrupted (Ctrl+C). Exiting...")
     finally:    
-        # Ensure that the server is terminated when the program exits
+       
         if http_process:
             terminate_http_server(http_process)
 
