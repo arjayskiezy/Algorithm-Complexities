@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .link {
+            stroke: #999;
+            stroke-width: 2px;
+        }
+        .mst-link {
+            stroke: #ff8800;
+            stroke-width: 4px;
+        }
+        .node circle {
+            fill: #5b6ee1;
+            stroke: #333;
+            stroke-width: 1.5px;
+        }
+        .node text {
+            fill: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .edge-label {
+            font-size: 12px;
+            fill: #333;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <svg width="800" height="600"></svg>
+    <script>
+        d3.json("graph_data.json").then(data => {
+            const svg = d3.select("svg"),
+                  width = +svg.attr("width"),
+                  height = +svg.attr("height");
+
+            // Create force simulation
+            const simulation = d3.forceSimulation()
+                .force("link", d3.forceLink().id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            // Convert data to D3 format
+            const nodes = Object.keys(data.vertices).map(id => ({
+                id,
+                label: data.vertices[id],
+                x: Math.random() * width, // Random initial position
+                y: Math.random() * height
+            }));
+
+            const edges = data.edges.map(edge => ({
+                source: edge[0].toString(),
+                target: edge[1].toString(),
+                weight: edge[2]
+            }));
+
+            const mstEdges = new Set(data.mst.map(edge => JSON.stringify(edge)));
+
+            // Draw links (edges)
+            const link = svg.selectAll(".link")
+                .data(edges)
+                .enter().append("line")
+                .attr("class", d => mstEdges.has(JSON.stringify([+d.source, +d.target, d.weight])) ? "mst-link" : "link");
+
+            // Draw edge weights (labels)
+            const edgeLabels = svg.selectAll(".edge-label")
+                .data(edges)
+                .enter().append("text")
+                .attr("class", "edge-label")
+                .attr("text-anchor", "middle")
+                .text(d => d.weight);
+
+            // Draw nodes
+            const node = svg.selectAll(".node")
+                .data(nodes)
+                .enter().append("g")
+                .attr("class", "node")
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            node.append("circle")
+                .attr("r", 20);
+
+            node.append("text")
+                .attr("dy", 5)
+                .text(d => d.label);
+
+            // Update positions on tick
+            simulation.nodes(nodes).on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                edgeLabels
+                    .attr("x", d => (d.source.x + d.target.x) / 2)
+                    .attr("y", d => (d.source.y + d.target.y) / 2);
+
+                node
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+
+            simulation.force("link").links(edges);
+
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        });
+    </script>
+</body>
+</html>

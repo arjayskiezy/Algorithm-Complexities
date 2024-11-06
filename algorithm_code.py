@@ -6,6 +6,36 @@ from Crypto.Cipher import DES
 import heapq
 from graphviz import Digraph
 import json
+import http.server
+import socketserver
+import webbrowser
+import subprocess
+import time
+import atexit
+
+def start_http_server():
+    try:
+        process = subprocess.Popen(['python3', '-m', 'http.server', '8000'], cwd='/home/arjay/Repository/Algorithm-Complexities')
+        return process
+    except FileNotFoundError as e:
+        print(f"Error starting HTTP server: {e}")
+        return None
+
+def terminate_http_server(process):
+    if process:
+        process.terminate()  # Terminate the HTTP server process
+        process.wait()  
+
+atexit.register(terminate_http_server)
+
+def start_server():
+    handler = http.server.SimpleHTTPRequestHandler
+    with socketserver.TCPServer(("", 8080), handler) as httpd:
+        print(f"Serving at port {8080}")
+        httpd.serve_forever()
+
+def open_browser():
+    webbrowser.open(f"http://localhost:{8080}")
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -1578,7 +1608,7 @@ class Graph:
             parent.append(node)
             rank.append(0)
 
-        while e < self.V - 1:
+        while e < self.V - 1 and i < len(self.graph):
             u, v, w = self.graph[i]
             i += 1
             x = self.find(parent, u)
@@ -1617,7 +1647,6 @@ def prompt_user_for_input():
         graph.vertex_labels[i] = label
 
     E = int(input("Enter the number of edges: "))
-    print("Enter the edges (vertex1 vertex2 weight):")
     for _ in range(E):
         u, v, w = input("Edge (vertex1 vertex2 weight): ").upper().split()
         graph.add_edge(vertex_labels[u], vertex_labels[v], int(w))
@@ -1628,78 +1657,82 @@ def kruskals_menu():
     g = prompt_user_for_input()
     mst = g.kruskal_mst()
     g.save_graph_data(mst)
+    time.sleep(1)  # Adjust the delay if needed
+    open_browser()
     pause_for_output()
 
     
 def main():
+    # Start the HTTP server
+    http_process = start_http_server()
+
+    # Initialize calculator and other objects
     calculator = Calculator()
     des = DES()
     
-    while True:
-        clear_screen()
-        show_main_menu()
-        main_choice = int(input("Enter your choice: "))
-        
-        if main_choice == 1:
-            calculator.calculator_menu()
-        elif main_choice == 2:
-            conversion_menu()
-        elif main_choice == 3:
-            bitwise_menu()
-        elif main_choice == 4:
-            prime_factorization_menu()
-        elif main_choice == 5:
-            prime_menu()
-        elif main_choice == 6:
-            gcd_lcm_menu(calculator)
-        elif main_choice == 7:
-            egyptian_fraction_menu(calculator)
-        elif main_choice == 8:
-            calculator.fibonacci_menu()
-        elif main_choice == 9:
-            calculator.euclidean_menu()
-        elif main_choice == 10:
-            prime_menu()
-        elif main_choice == 11:
-            calculator.modular_menu()
-        elif main_choice == 12:
-            caesar_cipher_menu()
-        elif main_choice == 13:
-            rsa_menu()
-        elif main_choice == 14:
-            diffie_hellman_menu()
-        elif main_choice == 15:
-            aes_menu()
-        elif main_choice == 16:
-            des.des_menu()
-        elif main_choice == 17:
-            activity_menu()
-        elif main_choice == 18:
-            job_sequencing_menu()
-        elif main_choice == 19:
-            huffman_menu()
-        elif main_choice == 20:
-            knapsack_menu()
-        # elif main_choice == 21:
+    try:
+        while True:
+            clear_screen()
+            show_main_menu()
+            main_choice = int(input("Enter your choice: "))
             
-        # elif main_choice == 22:
+            if main_choice == 1:
+                calculator.calculator_menu()
+            elif main_choice == 2:
+                conversion_menu()
+            elif main_choice == 3:
+                bitwise_menu()
+            elif main_choice == 4:
+                prime_factorization_menu()
+            elif main_choice == 5:
+                prime_menu()
+            elif main_choice == 6:
+                gcd_lcm_menu(calculator)
+            elif main_choice == 7:
+                egyptian_fraction_menu(calculator)
+            elif main_choice == 8:
+                calculator.fibonacci_menu()
+            elif main_choice == 9:
+                calculator.euclidean_menu()
+            elif main_choice == 10:
+                prime_menu()
+            elif main_choice == 11:
+                calculator.modular_menu()
+            elif main_choice == 12:
+                caesar_cipher_menu()
+            elif main_choice == 13:
+                rsa_menu()
+            elif main_choice == 14:
+                diffie_hellman_menu()
+            elif main_choice == 15:
+                aes_menu()
+            elif main_choice == 16:
+                des.des_menu()
+            elif main_choice == 17:
+                activity_menu()
+            elif main_choice == 18:
+                job_sequencing_menu()
+            elif main_choice == 19:
+                huffman_menu()
+            elif main_choice == 20:
+                knapsack_menu()
+            elif main_choice == 23:
+                kruskals_menu()
+            elif main_choice == 00:
+                print("Exiting the program...")
+                break
+            else:
+                print("Invalid choice! Please choose again.")
+                pause_for_output()
+    except KeyboardInterrupt:
+        print("\nProgram interrupted (Ctrl+C). Exiting...")
+    finally:
+        # Ensure that the server is terminated when the program exits
+        if http_process:
+            terminate_http_server(http_process)
 
-        elif main_choice == 23:
-            kruskals_menu()
-        # elif main_choice == 24:
 
-        # elif main_choice == 25:
-
-        # elif main_choice == 26:
-        
-        # elif main_choice == 27:
-
-        elif main_choice == 00:
-            print("Exiting the program...")
-            break
-        else:
-            print("Invalid choice! Please choose again.")
-            pause_for_output()
 
 if __name__ == "__main__":
     main()
+   
