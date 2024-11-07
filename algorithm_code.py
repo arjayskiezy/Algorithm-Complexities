@@ -1,7 +1,6 @@
 import os
 from sympy import symbols, simplify, Mod
 from sympy.parsing.sympy_parser import parse_expr
-from cryptography.hazmat.primitives.asymmetric import dh
 from Crypto.Cipher import DES
 import heapq
 from graphviz import Digraph
@@ -69,8 +68,8 @@ def show_main_menu():
     print("18) Job Sequencing Problem") 
     print("19) Huffman Coding and Decoding")
     print("20) Knapsack Problem")
-    print("21) Coin Change Problem")
-    print("22) Mice to Holes Problem")
+    print("21) Mice to Holes Problem ")
+    print("22) Coin Change Problem" )
     print("\nGreedy Algorithm In Graphs")
     print("23) Minimum Spanning Tree")
     print("\n00) Exit")
@@ -724,330 +723,136 @@ def diffie_hellman_key_exchange(p, g, a, b):
     
     pause_for_output()  
 
-def aes_menu():
-    clear_screen()
-    plainText = input("Enter plain text in multiple of 16 bytes: ")
-    key = input("Enter key in multiple of 16 bytes: ")
 
-    def keyExpansion(key,numround,rci,s_box):
-        round_const = rci[numround-1]
-        gw3 = [key[3][1],key[3][2],key[3][3],key[3][0]]
-        for i in range(4):
-            u = hex(s_box[int(gw3[i][2],16)][int(gw3[i][3],16)])
-            if(u == "0x0"):
-                u = "0x00"
-            elif(len(u.lstrip("0x"))<=1):
-                u = "0x0"+u.lstrip("0x")
-            gw3[i] = u
-        a = 1
-        b = 1
-        if(gw3[0] == "0x00" or gw3[0] == "0x0"):
-            a = 0
-        else:
-            a = int(gw3[0].lstrip("0x"),16)
-        x = hex(int(a^int(round_const.lstrip("0x"),16)))
-        if(x == "0x0"):
-            x = "0x00"
-        elif(len(x.lstrip("0x"))<=1):
-            x = "0x0"+x.lstrip("0x")
-        gw3[0] = x
-        w4 = []
-        for i in range(4):
-            r = 1
-            p = 1
-            if(gw3[i] == "0x00" or gw3[i] == "0x0"):
-                r = 0
-            else:
-                r = int(gw3[i].lstrip("0x"),16)
-            if(key[0][i] == "0x00" or key[0][i] == "0x0"):
-                p = 0
-            else:
-                p = int(key[0][i].lstrip("0x"),16)
-            y = hex(r^p)
-            if(y == "0x0"):
-                y = "0x00"
-            elif(len(y.lstrip("0x")) <= 1):
-                y = "0x0"+y.lstrip("0x")
-            w4.append(y)
-        w5 = []
-        w6 = []
-        w7 = []
-        for i in range(4):
-            r = 1
-            p = 1
-            if(w4[i] == "0x00" or w4[i] == "0x0"):
-                r = 0
-            else:
-                r = int(w4[i].lstrip("0x"),16)
-            if(key[1][i] == "0x00" or key[1][i] == "0x0"):
-                p = 0
-            else:
-                p = int(key[1][i].lstrip("0x"),16)
-            y = hex(r^p)
-            if(y == "0x0"):
-                y = "0x00"
-            elif(len(y.lstrip("0x")) <= 1):
-                y = "0x0"+y.lstrip("0x")
-            w5.append(y)
-        for i in range(4):
-            r = 1
-            p = 1
-            if(w5[i] == "0x00" or w5[i] == "0x0"):
-                r = 0
-            else:
-                r = int(w5[i].lstrip("0x"),16)
-            if(key[2][i] == "0x00" or key[2][i] == "0x0"):
-                p = 0
-            else:
-                p = int(key[2][i].lstrip("0x"),16)
-            y = hex(r^p)
-            if(y == "0x0"):
-                y = "0x00"
-            elif(len(y.lstrip("0x")) <= 1):
-                y = "0x0"+y.lstrip("0x")
-            w6.append(y)
-        for i in range(4):
-            r = 1
-            p = 1
-            if(w6[i] == "0x00" or w6[i] == "0x0"):
-                r = 0
-            else:
-                r = int(w6[i].lstrip("0x"),16)
-            if(key[3][i] == "0x00" or key[3][i] == "0x0"):
-                p = 0
-            else:
-                p = int(key[3][i].lstrip("0x"),16)
-            y = hex(r^p)
-            if(y == "0x0"):
-                y = "0x00"
-            elif(len(y.lstrip("0x")) <= 1):
-                y = "0x0"+y.lstrip("0x")
-            w7.append(y)
-        return [w4,w5,w6,w7]
+S_BOX = [
+    [0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76],
+    [0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0],
+    [0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15],
+    [0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75],
+    [0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84],
+    [0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf],
+    [0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8],
+    [0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2],
+    [0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73],
+    [0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb],
+    [0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79],
+    [0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08],
+    [0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a],
+    [0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e],
+    [0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf],
+    [0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16]
+]
 
-    def addRoundKey(pt,rk):
-        for i in range(4):
-            for j in range(4):
-                x = 0
-                y = 0
-                if(pt[j][i] != "0x00"):
-                    x = int(pt[j][i].lstrip("0x"),16)
-                if(rk[j][i] != "0x00"):
-                    y = int(rk[j][i].lstrip("0x"),16)
-                z = hex(x^y)
-                if(z == "0x0"):
-                    z = "0x00"
-                elif(len(z.lstrip("0x")) <= 1):
-                    z = "0x0"+z.lstrip("0x")
-                pt[j][i] = z
-        return pt
+MIX_COLUMNS_MATRIX = [
+    [0x02, 0x03, 0x01, 0x01],
+    [0x01, 0x02, 0x03, 0x01],
+    [0x01, 0x01, 0x02, 0x03],
+    [0x03, 0x01, 0x01, 0x02]
+]
 
-    def substitute(pt,s_box):
-        for i in range(4):
-            for j in range(4):
-                u = hex(s_box[int(pt[i][j][2],16)][int(pt[i][j][3],16)])
-                if(u == "0x0"):
-                    u = "0x00"
-                elif(len(u.lstrip("0x"))<=1):
-                    u = "0x0"+u.lstrip("0x")
-                pt[i][j] = u
-        return pt
+def sub_bytes(state):
+    return [[S_BOX[b // 16][b % 16] for b in row] for row in state]
 
-    def shiftRow(pt):
-        pt[0][1],pt[1][1],pt[2][1],pt[3][1] = pt[1][1],pt[2][1],pt[3][1],pt[0][1]
-        pt[0][2],pt[1][2],pt[2][2],pt[3][2] = pt[2][2],pt[3][2],pt[0][2],pt[1][2]
-        pt[0][3],pt[1][3],pt[2][3],pt[3][3] = pt[3][3],pt[0][3],pt[1][3],pt[2][3]
-        return pt
 
-    def mixMulCol(col,mul2,mul3):
-        temp = []
-        i = mul2[int(col[0][2],16)][int(col[0][3],16)]
-        j = mul3[int(col[1][2],16)][int(col[1][3],16)]
-        k = int(col[2],16)
-        l = int(col[3],16)
-        m = hex(i^j^k^l)
-        if(m == "0x0"):
-            m = "0x00"
-        elif(len(m.lstrip("0x")) <= 1):
-            m = "0x0"+m.lstrip("0x")
-        temp.append(m)
-
-        i = int(col[0],16)
-        j = mul2[int(col[1][2],16)][int(col[1][3],16)]
-        k = mul3[int(col[2][2],16)][int(col[2][3],16)]
-        l = int(col[3],16)
-        m = hex(i^j^k^l)
-        if(m == "0x0"):
-            m = "0x00"
-        elif(len(m.lstrip("0x")) <= 1):
-            m = "0x0"+m.lstrip("0x")
-        temp.append(m)
-
-        i = int(col[0],16)
-        j = int(col[1],16)
-        k = mul2[int(col[2][2],16)][int(col[2][3],16)]
-        l = mul3[int(col[3][2],16)][int(col[3][3],16)]
-        m = hex(i^j^k^l)
-        if(m == "0x0"):
-            m = "0x00"
-        elif(len(m.lstrip("0x")) <= 1):
-            m = "0x0"+m.lstrip("0x")
-        temp.append(m)
-
-        i = mul3[int(col[0][2],16)][int(col[0][3],16)]
-        j = int(col[1],16)
-        k = int(col[2],16)
-        l = mul2[int(col[3][2],16)][int(col[3][3],16)]
-        m = hex(i^j^k^l)
-        if(m == "0x0"):
-            m = "0x00"
-        elif(len(m.lstrip("0x")) <= 1):
-            m = "0x0"+m.lstrip("0x")
-        temp.append(m)
-        return temp
-    def mixCol(mul2,mul3,pt):
-        res = []
-        for i in range(4):
-            temp = []
-            temp.append(pt[i][0])
-            temp.append(pt[i][1])
-            temp.append(pt[i][2])
-            temp.append(pt[i][3])
-            res.append(mixMulCol(temp,mul2,mul3))
-        return res
-    def printMatrix(m):
-        for i in range(4):
-            for j in range(4):
-                y = m[j][i]
-                if(y == "0x00"):
-                    y = "00"
-                elif(len(y.lstrip("0x")) <= 1):
-                    y = "0"+y.lstrip("0x")
-                else:
-                    y = y.lstrip("0x")
-                print(y.upper(),end=" ")
-            print(" ")
-    def printCipher(m):
-        for i in range(4):
-            for j in range(4):
-                y = m[i][j]
-                if(y == "0x00"):
-                    y = "00"
-                elif(len(y.lstrip("0x")) <= 1):
-                    y = "0"+y.lstrip("0x")
-                else:
-                    y = y.lstrip("0x")
-                print(y.upper(),end=" ")
-        print(" ")
-
-    s_box = [
-        [0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76],
-        [0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0],
-        [0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15],
-        [0x04, 0xC7, 0x23, 0xC3, 0x18, 0x96, 0x05, 0x9A, 0x07, 0x12, 0x80, 0xE2, 0xEB, 0x27, 0xB2, 0x75],
-        [0x09, 0x83, 0x2C, 0x1A, 0x1B, 0x6E, 0x5A, 0xA0, 0x52, 0x3B, 0xD6, 0xB3, 0x29, 0xE3, 0x2F, 0x84],
-        [0x53, 0xD1, 0x00, 0xED, 0x20, 0xFC, 0xB1, 0x5B, 0x6A, 0xCB, 0xBE, 0x39, 0x4A, 0x4C, 0x58, 0xCF],
-        [0xD0, 0xEF, 0xAA, 0xFB, 0x43, 0x4D, 0x33, 0x85, 0x45, 0xF9, 0x02, 0x7F, 0x50, 0x3C, 0x9F, 0xA8],
-        [0x51, 0xA3, 0x40, 0x8F, 0x92, 0x9D, 0x38, 0xF5, 0xBC, 0xB6, 0xDA, 0x21, 0x10, 0xFF, 0xF3, 0xD2],
-        [0xCD, 0x0C, 0x13, 0xEC, 0x5F, 0x97, 0x44, 0x17, 0xC4, 0xA7, 0x7E, 0x3D, 0x64, 0x5D, 0x19, 0x73],
-        [0x60, 0x81, 0x4F, 0xDC, 0x22, 0x2A, 0x90, 0x88, 0x46, 0xEE, 0xB8, 0x14, 0xDE, 0x5E, 0x0B, 0xDB],
-        [0xE0, 0x32, 0x3A, 0x0A, 0x49, 0x06, 0x24, 0x5C, 0xC2, 0xD3, 0xAC, 0x62, 0x91, 0x95, 0xE4, 0x79],
-        [0xE7, 0xC8, 0x37, 0x6D, 0x8D, 0xD5, 0x4E, 0xA9, 0x6C, 0x56, 0xF4, 0xEA, 0x65, 0x7A, 0xAE, 0x08],
-        [0xBA, 0x78, 0x25, 0x2E, 0x1C, 0xA6, 0xB4, 0xC6, 0xE8, 0xDD, 0x74, 0x1F, 0x4B, 0xBD, 0x8B, 0x8A],
-        [0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E, 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E],
-        [0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF],
-        [0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16]
+def shift_rows(state):
+    return [
+        state[0],
+        state[1][1:] + state[1][:1],
+        state[2][2:] + state[2][:2],
+        state[3][3:] + state[3][:3]
     ]
-    rci = ["0x01","0x02","0x04","0x08","0x10","0x20","0x40","0x80","0x1B","0x36"]
-    mul2 = [
-        [0x00,0x02,0x04,0x06,0x08,0x0a,0x0c,0x0e,0x10,0x12,0x14,0x16,0x18,0x1a,0x1c,0x1e],
-    [0x20,0x22,0x24,0x26,0x28,0x2a,0x2c,0x2e,0x30,0x32,0x34,0x36,0x38,0x3a,0x3c,0x3e],
-    [0x40,0x42,0x44,0x46,0x48,0x4a,0x4c,0x4e,0x50,0x52,0x54,0x56,0x58,0x5a,0x5c,0x5e],
-    [0x60,0x62,0x64,0x66,0x68,0x6a,0x6c,0x6e,0x70,0x72,0x74,0x76,0x78,0x7a,0x7c,0x7e],
-    [0x80,0x82,0x84,0x86,0x88,0x8a,0x8c,0x8e,0x90,0x92,0x94,0x96,0x98,0x9a,0x9c,0x9e],
-    [0xa0,0xa2,0xa4,0xa6,0xa8,0xaa,0xac,0xae,0xb0,0xb2,0xb4,0xb6,0xb8,0xba,0xbc,0xbe],
-    [0xc0,0xc2,0xc4,0xc6,0xc8,0xca,0xcc,0xce,0xd0,0xd2,0xd4,0xd6,0xd8,0xda,0xdc,0xde],
-    [0xe0,0xe2,0xe4,0xe6,0xe8,0xea,0xec,0xee,0xf0,0xf2,0xf4,0xf6,0xf8,0xfa,0xfc,0xfe],
-    [0x1b,0x19,0x1f,0x1d,0x13,0x11,0x17,0x15,0x0b,0x09,0x0f,0x0d,0x03,0x01,0x07,0x05],
-    [0x3b,0x39,0x3f,0x3d,0x33,0x31,0x37,0x35,0x2b,0x29,0x2f,0x2d,0x23,0x21,0x27,0x25],
-    [0x5b,0x59,0x5f,0x5d,0x53,0x51,0x57,0x55,0x4b,0x49,0x4f,0x4d,0x43,0x41,0x47,0x45],
-    [0x7b,0x79,0x7f,0x7d,0x73,0x71,0x77,0x75,0x6b,0x69,0x6f,0x6d,0x63,0x61,0x67,0x65],
-    [0x9b,0x99,0x9f,0x9d,0x93,0x91,0x97,0x95,0x8b,0x89,0x8f,0x8d,0x83,0x81,0x87,0x85],
-    [0xbb,0xb9,0xbf,0xbd,0xb3,0xb1,0xb7,0xb5,0xab,0xa9,0xaf,0xad,0xa3,0xa1,0xa7,0xa5],
-    [0xdb,0xd9,0xdf,0xdd,0xd3,0xd1,0xd7,0xd5,0xcb,0xc9,0xcf,0xcd,0xc3,0xc1,0xc7,0xc5],
-    [0xfb,0xf9,0xff,0xfd,0xf3,0xf1,0xf7,0xf5,0xeb,0xe9,0xef,0xed,0xe3,0xe1,0xe7,0xe5]]
 
-    mul3 = [[0x00,0x03,0x06,0x05,0x0c,0x0f,0x0a,0x09,0x18,0x1b,0x1e,0x1d,0x14,0x17,0x12,0x11],
-    [0x30,0x33,0x36,0x35,0x3c,0x3f,0x3a,0x39,0x28,0x2b,0x2e,0x2d,0x24,0x27,0x22,0x21],
-    [0x60,0x63,0x66,0x65,0x6c,0x6f,0x6a,0x69,0x78,0x7b,0x7e,0x7d,0x74,0x77,0x72,0x71],
-    [0x50,0x53,0x56,0x55,0x5c,0x5f,0x5a,0x59,0x48,0x4b,0x4e,0x4d,0x44,0x47,0x42,0x41],
-    [0xc0,0xc3,0xc6,0xc5,0xcc,0xcf,0xca,0xc9,0xd8,0xdb,0xde,0xdd,0xd4,0xd7,0xd2,0xd1],
-    [0xf0,0xf3,0xf6,0xf5,0xfc,0xff,0xfa,0xf9,0xe8,0xeb,0xee,0xed,0xe4,0xe7,0xe2,0xe1],
-    [0xa0,0xa3,0xa6,0xa5,0xac,0xaf,0xaa,0xa9,0xb8,0xbb,0xbe,0xbd,0xb4,0xb7,0xb2,0xb1],
-    [0x90,0x93,0x96,0x95,0x9c,0x9f,0x9a,0x99,0x88,0x8b,0x8e,0x8d,0x84,0x87,0x82,0x81],
-    [0x9b,0x98,0x9d,0x9e,0x97,0x94,0x91,0x92,0x83,0x80,0x85,0x86,0x8f,0x8c,0x89,0x8a],
-    [0xab,0xa8,0xad,0xae,0xa7,0xa4,0xa1,0xa2,0xb3,0xb0,0xb5,0xb6,0xbf,0xbc,0xb9,0xba],
-    [0xfb,0xf8,0xfd,0xfe,0xf7,0xf4,0xf1,0xf2,0xe3,0xe0,0xe5,0xe6,0xef,0xec,0xe9,0xea],
-    [0xcb,0xc8,0xcd,0xce,0xc7,0xc4,0xc1,0xc2,0xd3,0xd0,0xd5,0xd6,0xdf,0xdc,0xd9,0xda],
-    [0x5b,0x58,0x5d,0x5e,0x57,0x54,0x51,0x52,0x43,0x40,0x45,0x46,0x4f,0x4c,0x49,0x4a],
-    [0x6b,0x68,0x6d,0x6e,0x67,0x64,0x61,0x62,0x73,0x70,0x75,0x76,0x7f,0x7c,0x79,0x7a],
-    [0x3b,0x38,0x3d,0x3e,0x37,0x34,0x31,0x32,0x23,0x20,0x25,0x26,0x2f,0x2c,0x29,0x2a],
-    [0x0b,0x08,0x0d,0x0e,0x07,0x04,0x01,0x02,0x13,0x10,0x15,0x16,0x1f,0x1c,0x19,0x1a]]
+def mix_columns(state):
+    mixed = [[0] * 4 for _ in range(4)] 
+    
+    for c in range(4): 
+        mixed[0][c] = galois_mult(state[0][c], 0x02) ^ galois_mult(state[1][c], 0x03) ^ state[2][c] ^ state[3][c]
+        mixed[1][c] = state[0][c] ^ galois_mult(state[1][c], 0x02) ^ galois_mult(state[2][c], 0x03) ^ state[3][c]
+        mixed[2][c] = state[0][c] ^ state[1][c] ^ galois_mult(state[2][c], 0x02) ^ galois_mult(state[3][c], 0x03)
+        mixed[3][c] = galois_mult(state[0][c], 0x03) ^ state[1][c] ^ state[2][c] ^ galois_mult(state[3][c], 0x02)
 
-    initialState = []
-    initialKey = []
-    finalState = []
-    total = 0
-    for i in range(4):
-        temp = []
-        temp1 = []
-        temp2 = []
-        for j in range(4):
-            temp2.append(hex(ord(plainText[total])))
-            temp.append(hex(ord(plainText[total])))
-            temp1.append(hex(ord(key[total])))
-            total+=1
-        initialState.append(temp)
-        initialKey.append(temp1)
-        finalState.append(temp2)
-    print("--------Initial----------")
-    print("Initial Plain text Matrix")
-    printMatrix(initialState)
-    print("Initial Key matrix")
-    printMatrix(initialKey)
-    print("-------------------------")
-    print("---------Round 0---------")
-    print("After round 0 add key")
-    initialState = addRoundKey(initialState,initialKey)
-    printMatrix(initialState)
-    for i in range(1,11):
-        print("--------Round "+str(i)+"---------")
-        initialKey = keyExpansion(initialKey,i,rci,s_box)
-        print("This round Key")
-        printMatrix(initialKey)
-        print("After Susbstitution")
-        initialState = substitute(initialState,s_box)
-        printMatrix(initialState)
-
-        print("After shift rows")
-        initialState = shiftRow(initialState)
-        printMatrix(initialState)
-        if(i!=10):
-            print("After Mix column")
-            initialState = mixCol(mul2,mul3,initialState)
-            printMatrix(initialState)
-
-        print("After add round key")
-        initialState = addRoundKey(initialState,initialKey)
-        printMatrix(initialState)
-    print("-----------Result----------")
-    print("Original Message")
-    printCipher(finalState)
-    print("The cipher text is")
-    printCipher(initialState)
+    return mixed
 
 
+def galois_mult(x, y):
+    
+    p = 0
+    for _ in range(8):
+        if y & 1:
+            p ^= x
+        x <<= 1
+        if x & 0x100:  
+            x ^= 0x11B  
+        y >>= 1
+    return p & 0xFF 
 
+
+def add_round_key(state, round_key):
+    return [[state[r][c] ^ round_key[r][c] for c in range(4)] for r in range(4)]
+
+
+def print_state(state):
+    for row in state:
+        print(' '.join(f'{b:02x}' for b in row))
+
+
+def input_matrix(prompt):
+    while True:
+        try:
+            matrix = []
+            print(prompt)
+            for i in range(4):
+                row = input(f"Row {i + 1} (16 hex values separated by spaces): ").strip().split()
+                if len(row) != 4:
+                    raise ValueError("Each row must contain exactly 4 hex values.")
+                matrix.append([int(b, 16) for b in row])
+            return matrix
+        except ValueError as e:
+            print(f"Invalid input: {e}. Please try again.")
+
+
+def aes_menu():
+    state = input_matrix("Enter the initial state (4x4 matrix):")
+    round_key = input_matrix("Enter the round key (4x4 matrix):")
+
+    while True:
+        try:
+            rounds = int(input("Enter the number of rounds (0 for round 0, default is 10): ") or 10)
+            if rounds < 0:
+                raise ValueError("Number of rounds must be at least 0.")
+            break
+        except ValueError as e:
+            print(f"Invalid input: {e}. Please try again.")
+
+    
+    print("\nRound 0 transformations:")
+    state = add_round_key(state, round_key)
+    print_state(state)
+    pause_for_output()
+
+    for round_num in range(1, rounds + 1):
+        print(f"\nRound {round_num} transformations:")
+
+        state = sub_bytes(state)
+        print("After SubBytes:")
+        print_state(state)
+
+        state = shift_rows(state)
+        print("After ShiftRows:")
+        print_state(state)
+
+        if round_num < rounds:
+            state = mix_columns(state)
+            print("After MixColumns:")
+            print_state(state)
+
+        state = add_round_key(state, round_key)
+        print("After AddRoundKey:")
+        print_state(state)
+        
+        input("Press Enter to continue...") 
+
+    
 class DES:
     S0_table = [
         [1, 0, 3, 2],
@@ -1494,8 +1299,6 @@ def huffman_menu():
     huffman_coding.run_huffman_coding()
     pause_for_output()
 
-
-
 class Item:
     def __init__(self, profit, weight, index):
         self.profit = profit
@@ -1560,6 +1363,82 @@ def knapsack_menu():
     clear_screen()
     knapsack()
 
+def min_time_to_hole(mice, holes):
+
+    if len(mice) != len(holes):
+        print("The number of mice and holes must be the same.")
+        return None
+
+    mice.sort()
+    holes.sort()
+
+    max_distance = 0
+    for i in range(len(mice)):
+        distance = abs(mice[i] - holes[i])
+        max_distance = max(max_distance, distance)
+
+    return max_distance
+
+def mice_menu():
+    clear_screen()
+    try:
+        mice = list(map(int, input("Enter the positions of mice (separated by spaces): ").split()))
+        holes = list(map(int, input("Enter the positions of holes (separated by spaces): ").split()))
+    except ValueError:
+        print("Please enter valid integers for positions.")
+        return
+
+    if len(mice) != len(holes):
+        print("The number of mice and holes must be the same.")
+        return
+
+    min_max_distance = min_time_to_hole(mice, holes)
+
+    if min_max_distance is not None:
+        print(f"The minimum maximum distance any mouse has to travel is: {min_max_distance}")
+    pause_for_output()
+
+
+def min_coins(amount, denominations):
+
+    denominations.sort(reverse=True)
+
+    coin_count = 0
+    coins_used = []
+
+    for coin in denominations:
+        if amount == 0:
+            break
+        
+        num_of_coins = amount // coin
+        coin_count += num_of_coins
+        coins_used.extend([coin] * num_of_coins)  
+    
+        amount -= num_of_coins * coin
+
+    if amount != 0:
+        print("The exact amount cannot be reached with the provided denominations.")
+        return None, None
+
+    return coin_count, coins_used
+
+def coin_menu():
+    clear_screen()
+    try:
+        amount = int(input("Enter the amount to make change for: "))
+        denominations = list(map(int, input("Enter the coin denominations (separated by spaces): ").split()))
+    except ValueError:
+        print("Please enter valid integers for the amount and denominations.")
+        return
+
+    coin_count, coins_used = min_coins(amount, denominations)
+
+    if coin_count is not None:
+        print(f"Minimum number of coins needed: {coin_count}")
+        print(f"Coins used: {coins_used}")
+    pause_for_output()
+
+
 class Graph:
     def __init__(self, vertices):
         self.V = vertices
@@ -1602,6 +1481,7 @@ class Graph:
 
     
 class Kruskal(Graph):
+    clear_screen()
     def __init__(self, vertices):
         super().__init__(vertices)
         self.parent = []
@@ -1657,42 +1537,34 @@ class Kruskal(Graph):
 
 
 class Prims(Graph):
+    clear_screen()
     def __init__(self, vertices):
         super().__init__(vertices)
     
     def run(self, start_vertex):
-        
         if start_vertex not in self.vertex_map:
             print(f"Start vertex {start_vertex} not in graph.")
             return
 
         start_idx = self.vertex_map[start_vertex]
-        
-        
-        mst_edges = []           
+        mst_edges = []
         visited = [False] * self.V
         min_heap = [(0, start_idx, start_idx)]  
-
         total_weight = 0
         
         print(f"Starting Prim's algorithm from vertex: {start_vertex}")
         
         while min_heap:
             weight, u, v = heapq.heappop(min_heap)
-
-           
             if visited[v]:
                 continue
-
-           
             visited[v] = True
             if u != v:  
-                mst_edges.append((self.reverse_map[u], self.reverse_map[v], weight))
+                mst_edges.append([u, v, weight])
                 total_weight += weight
                 print(f"Selected edge {self.reverse_map[u]} -- {self.reverse_map[v]} == {weight}")
 
-            for edge in self.graph:
-                src, dest, edge_weight = edge
+            for src, dest, edge_weight in self.graph:
                 if src == v and not visited[dest]:
                     heapq.heappush(min_heap, (edge_weight, v, dest))
                     print(f"Considering edge {self.reverse_map[v]} -- {self.reverse_map[dest]} == {edge_weight}")
@@ -1700,14 +1572,17 @@ class Prims(Graph):
                     heapq.heappush(min_heap, (edge_weight, v, src))
                     print(f"Considering edge {self.reverse_map[v]} -- {self.reverse_map[src]} == {edge_weight}")
 
+        self.display_mst(mst_edges, total_weight)
+
+    def display_mst(self, mst_edges, total_weight):
         print("\nMinimum Spanning Tree (MST) constructed by Prim's Algorithm:")
         for u, v, weight in mst_edges:
-            print(f"{u} -- {v} == {weight}")
+            print(f"{self.reverse_map[u]} -- {self.reverse_map[v]} == {weight}")
         print(f"Total weight of MST: {total_weight}")
-
         self.save_graph_data(mst_edges)
 
 class Boruvka(Graph):
+    clear_screen()
     def __init__(self, vertices):
         super().__init__(vertices)
     
@@ -1759,6 +1634,7 @@ class Boruvka(Graph):
 
 
 class Dijkstra(Graph):
+    clear_screen()
     def __init__(self, vertices):
         super().__init__(vertices)
     
@@ -1846,6 +1722,7 @@ class Dijkstra(Graph):
 
 
 class Dials(Graph):
+    clear_screen()
     def __init__(self, vertices, max_weight=15):
         super().__init__(vertices)
         self.max_weight = max_weight 
@@ -1911,6 +1788,7 @@ class Dials(Graph):
         print("\nGraph data saved to 'graph_data.json'.")
 
 def prompt_user_for_input():
+    clear_screen()
     V = int(input("Enter the number of vertices: "))
     print("Select algorithm:")
     print("1) Kruskal's Algorithm")
@@ -2016,6 +1894,10 @@ def main():
                 huffman_menu()
             elif main_choice == 20:
                 knapsack_menu()
+            elif main_choice == 21:
+                mice_menu()
+            elif main_choice == 22:
+                coin_menu()
             elif main_choice == 23:
                 greedy()
             elif main_choice == 00:

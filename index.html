@@ -127,23 +127,21 @@
             }
     
             function stepThroughEdges() {
-                // Highlight current edge
+                
                 let edge = mstEdges[currentEdgeIndex];
                 highlightEdge(edge[0], edge[1]);
     
-                // Move to the next edge
+                
                 currentEdgeIndex++;
     
-                // If at the end of MST edges, unhighlight all and reset
                 if (currentEdgeIndex >= mstEdges.length) {
                     setTimeout(() => {
                         unhighlightEdges();
-                        currentEdgeIndex = 0; // Restart from the beginning
-                    }, 1000); // Delay before unhighlighting all
+                        currentEdgeIndex = 0; 
+                    }, 1000); 
                 }
             }
     
-            // Start highlighting each edge at a regular interval (1 second)
             setInterval(stepThroughEdges, 1000);
     
             function dragstarted(event, d) {
