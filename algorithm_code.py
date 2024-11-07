@@ -213,7 +213,7 @@ class Calculator:
             print("1) Generate prime numbers up to a given number")
             print("2) Back to Main Menu")
 
-            choice = int(input("348:s "))
+            choice = int(input("Choose: "))
             if choice == 2:
                 break
             elif choice == 1:
@@ -340,7 +340,7 @@ def conversion_menu():
         for i, (desc, _) in enumerate(conversion_methods):
             print(f"{i + 1}) {desc}")
 
-        conv_choice = int(input("348: "))
+        conv_choice = int(input("Choose: "))
         
         if conv_choice == 5:
             break
@@ -682,19 +682,16 @@ def diffie_hellman_menu():
 def diffie_hellman_key_exchange(p, g, a, b):
     """Perform Diffie-Hellman key exchange with key substitution until keys match."""
     
-   
-    A = pow(g, a, p)  
-    B = pow(g, b, p)  
+    A = pow(g, a, p)  # Alice's public key
+    B = pow(g, b, p)  # Bob's public key
     
     print(f"\nAlice A = g^a % p = {g}^{a} % {p} = {A}")
     print(f"Bob key B = g^b % p = {g}^{b} % {p} = {B}")
     
-    
     input("\nPress Enter to continue...")
     
-    
-    shared_secret_A = A  
-    shared_secret_B = B  
+    shared_secret_A = A  # Initial value for Alice's shared key
+    shared_secret_B = B  # Initial value for Bob's shared key
     
     print("\nStarting key substitution process...")
     
@@ -704,24 +701,20 @@ def diffie_hellman_key_exchange(p, g, a, b):
         print(f"Alice Current Key = {shared_secret_A}")
         print(f"Bob Current key = {shared_secret_B}")
         
-        
+        # Alice computes her new shared secret key using Bob's current key
         shared_secret_A = pow(shared_secret_B, a, p)
         print(f"Alice new shared secret key = B^a % p = {shared_secret_B}^{a} % {p} = {shared_secret_A}")
         
-       
-        shared_secret_B = pow(shared_secret_A, b, p)
-        print(f"Bob friend's new shared secret key = A^b % p = {shared_secret_A}^{b} % {p} = {shared_secret_B}")
+        # Bob computes his new shared secret key using the original public key A
+        shared_secret_B = pow(A, b, p)
+        print(f"Bob friend's new shared secret key = A^b % p = {A}^{b} % {p} = {shared_secret_B}")
         
         iteration += 1
-        
-        
         input("\nPress Enter to continue...")
 
-   
     print("\nThe shared secret keys match!")
     print(f"Final shared secret key = {shared_secret_A}")
-    
-    pause_for_output()  
+    pause_for_output()
 
 
 S_BOX = [
@@ -812,6 +805,7 @@ def input_matrix(prompt):
 
 
 def aes_menu():
+    clear_screen()
     state = input_matrix("Enter the initial state (4x4 matrix):")
     round_key = input_matrix("Enter the round key (4x4 matrix):")
 
@@ -1038,7 +1032,7 @@ class DES:
 
         decision = input("\n\nSingle Hexa Combination or Plaintext? (H/P) \n\n").strip().upper()
 
-        if decision == 'H':
+        if decision == 'P':
             PT = input("\nEnter your PlainText: ").strip()
             hex_values = [format(ord(ch), 'x') for ch in PT]
             Integer_hex = self.hexToInt(hex_values)
@@ -1158,6 +1152,7 @@ def printJobScheduling(arr, t):
     print("| " + "   ".join(job_sequence) + "  |")
     print("+-----+-----+-----+")
     print(f"Maximum Profit: {total_profit}")
+    pause_for_output()
 
 
 
@@ -1233,6 +1228,10 @@ class HuffmanCoding:
 
     def visualize_tree(self, root):
         os.environ["PATH"] += os.pathsep + '/usr/bin'
+        def calculate_depth(node):
+            if not node:
+                return 0
+            return 1 + max(calculate_depth(node.left), calculate_depth(node.right))
 
         def add_edges(graph, node, counter):
             if node.left:
@@ -1260,7 +1259,6 @@ class HuffmanCoding:
 
         add_edges(dot, root, [2, 0])
 
-  
         dot.render('huffman_tree', format='png', view=True)
 
     def run_huffman_coding(self):
@@ -1386,10 +1384,12 @@ def mice_menu():
         holes = list(map(int, input("Enter the positions of holes (separated by spaces): ").split()))
     except ValueError:
         print("Please enter valid integers for positions.")
+        pause_for_output()
         return
 
     if len(mice) != len(holes):
         print("The number of mice and holes must be the same.")
+        pause_for_output()
         return
 
     min_max_distance = min_time_to_hole(mice, holes)
@@ -1677,8 +1677,7 @@ class Dijkstra(Graph):
         print("\nShortest paths from start vertex:")
         for i, d in enumerate(distances):
             print(f"Distance to {self.reverse_map[i]}: {d}")
-            pause_for_output()
-        print("\nPath reconstruction:")
+            print("\nPath reconstruction:")
         for end_idx in range(self.V):
             if distances[end_idx] == float('inf'):
                 print(f"No path to {self.reverse_map[end_idx]}")
@@ -1691,6 +1690,7 @@ class Dijkstra(Graph):
                 current = previous[current]
             path.reverse()
             print(f"Path to {self.reverse_map[end_idx]}: {' -> '.join(path)}")
+        pause_for_output()
 
         self.save_graph_data(distances, previous)
 
@@ -1768,11 +1768,11 @@ class Dials(Graph):
                     new_distance = min(distances[neighbor], self.max_weight)
                     buckets[new_distance].append(neighbor)
                     print(f"Updated distance of {neighbor} to {distances[neighbor]} via {current_vertex}")
-                    pause_for_output() 
-
+                    
+                    
         total_cost = sum(dist for dist in distances.values() if dist != math.inf)
         print(f"Total cost: {total_cost}")
-
+    
         graph_data = {
             "vertices": self.vertex_map,
             "edges": [(u, v, w) for u, v, w in self.graph],
@@ -1781,7 +1781,7 @@ class Dials(Graph):
             "mst": [], 
             "total_cost": total_cost  
         }
-
+        pause_for_output() 
         with open('dials_graph_data.json', 'w') as f:
             json.dump(graph_data, f)
 

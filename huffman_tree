@@ -1,13 +1,25 @@
 digraph {
-	graph [size="40,40"]
+	graph [nodesep=0.5 rankdir=LR ranksep=0.5 size="40,40" splines=true]
 	node [bgcolor=white color=lightgrey margin=2 shape=box style=filled]
 	edge [color=blue]
 	0 [label=" 
-3" color=yellow fillcolor=darkviolet fixedsize=true fontcolor=white height=0.8 shape=circle style=filled width=0.8]
-	2 [label="1
-1" color=yellow fillcolor=darkviolet fixedsize=true fontcolor=white height=0.8 shape=circle style=filled width=0.8]
+242" color=yellow fillcolor=darkviolet fixedsize=true fontcolor=white height=0.8 shape=circle style=filled width=0.8]
+	2 [label=" 
+88" color=yellow fillcolor=darkviolet fixedsize=true fontcolor=white height=0.8 shape=circle style=filled width=0.8]
 	0 -> 2 [label=0 color=blue]
-	3 [label="2
-2" color=yellow fillcolor=darkviolet fixedsize=true fontcolor=white height=0.8 shape=circle style=filled width=0.8]
+	3 [label="c
+21" color=yellow fillcolor=darkviolet fixedsize=true fontcolor=white height=0.8 shape=circle style=filled width=0.8]
+	2 -> 3 [label=0 color=blue]
+	4 [label="a
+67" color=yellow fillcolor=darkviolet fixedsize=true fontcolor=white height=0.8 shape=circle style=filled width=0.8]
+	2 -> 4 [label=1 color=blue]
+	3 [label=" 
+154" color=yellow fillcolor=darkviolet fixedsize=true fontcolor=white height=0.8 shape=circle style=filled width=0.8]
 	0 -> 3 [label=1 color=blue]
+	4 [label="b
+76" color=yellow fillcolor=darkviolet fixedsize=true fontcolor=white height=0.8 shape=circle style=filled width=0.8]
+	3 -> 4 [label=0 color=blue]
+	5 [label="d
+78" color=yellow fillcolor=darkviolet fixedsize=true fontcolor=white height=0.8 shape=circle style=filled width=0.8]
+	3 -> 5 [label=1 color=blue]
 }
